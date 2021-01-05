@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<litepal>
+    <dbname value="Drone" />
+    <version value="4" />
+    <list>
+        <mapping class = "com.jiushuo.uavRct.entity.sqlite.Mission"/>
+        <mapping class = "com.jiushuo.uavRct.entity.sqlite.WayPoint"/>
+        <mapping class = "com.jiushuo.uavRct.entity.sqlite.Action"/>
+    </list>
+</litepal>

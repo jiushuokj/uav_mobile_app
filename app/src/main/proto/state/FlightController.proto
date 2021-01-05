@@ -1,0 +1,98 @@
+//topic:{SerialNumber}/Mobile/State/FlightController
+syntax = "proto3";
+option java_package = "com.cetc.mobile.state";
+option java_outer_classname = "ProtoFlightController";
+message FlightController {
+    bool areMotorsOn = 1;
+    bool isFlying = 2;
+    double latitude = 3;
+    double longitude = 4;
+    double altitude = 5; //Returns the relative altitude of the aircraft relative to take off location, measured by barometer, in meters.
+    float takeoffLocationAltitude = 6; //Relative altitude of the aircraft home location relative to sea level, in meters.(In flightControllerState)
+    double pitch = 7;
+    double roll = 8;
+    double yaw = 9;
+    float velocityX = 10;
+    float velocityY = 11;
+    float velocityZ = 12;
+    int32 flightTimeInSeconds = 13;
+    enum FlightMode {
+        MANUAL = 0;
+        ATTI = 1;
+        ATTI_COURSE_LOCK = 2;
+        ATTI_HOVER = 3;
+        HOVER = 4;
+        GPS_BLAKE = 5;
+        GPS_ATTI = 6;
+        GPS_COURSE_LOCK = 7;
+        GPS_HOME_LOCK = 8;
+        GPS_HOT_POINT = 9;
+        ASSISTED_TAKEOFF = 10;
+        AUTO_TAKEOFF = 11;
+        AUTO_LANDING = 12;
+        ATTI_LANDING = 13;
+        GPS_WAYPOINT = 14;
+        GO_HOME = 15;
+        CLICK_GO = 16;
+        JOYSTICK = 17;
+        GPS_ATTI_WRISTBAND = 18;
+        CINEMATIC = 19;
+        ATTI_LIMITED = 23;
+        DRAW = 24;
+        GPS_FOLLOW_ME = 25;
+        ACTIVE_TRACK = 26;
+        TAP_FLY = 27;
+        PANO = 28;
+        FARMING = 29;
+        FPV = 30;
+        GPS_SPORT = 31;
+        GPS_NOVICE = 32;
+        CONFIRM_LANDING = 33;
+        TERRAIN_FOLLOW = 35;
+        PALM_CONTROL = 36;
+        QUICK_SHOT = 37;
+        TRIPOD = 38;
+        TRACK_SPOTLIGHT = 39;
+        MOTORS_JUST_STARTED = 41;
+        DETOUR = 43;
+        TIME_LAPSE = 46;
+        POI2 = 50;
+        OMNI_MOVING = 49;
+        ADSB_AVOIDING = 48;
+        FLIGHT_MODE_UNKNOWN = 255;
+    }
+    FlightMode flightMode = 14;
+    int32 GPSSatelliteCount = 15;
+    enum GPSSignalLevel {
+        GPS_LEVEL_0 = 0;
+        GPS_LEVEL_1 = 1;
+        GPS_LEVEL_2 = 2;
+        GPS_LEVEL_3 = 3;
+        GPS_LEVEL_4 = 4;
+        GPS_LEVEL_5 = 5;
+        GPS_NONE = 255;
+    }
+    GPSSignalLevel GPSgSignalLevel = 16;
+    enum FlightWindWarning {
+        WIND_LEVEL_0 = 0;
+        WIND_LEVEL_1 = 1;
+        WIND_LEVEL_2 = 2;
+        WIND_UNKNOWN = 3;
+    }
+    FlightWindWarning flightWindWarning = 17;
+    int32 remainingFlightTime = 18; //The estimated remaining time, in seconds, it will take the aircraft to go home with a 10% battery buffer remaining. This time includes landing the aircraft. If the aircraft is using the simulator, this value will be 0.
+    int32 timeNeededToGoHome = 19; //The estimated time, in seconds, needed for the aircraft to go home from its current location.
+    enum AirSenseWarningLevel {
+        AirSenseWarning_LEVEL_0 = 0;
+        LEVEL_1 = 1;
+        LEVEL_2 = 2;
+        LEVEL_3 = 3;
+        LEVEL_4 = 4;
+        UNKNOWN = 100;
+    }
+    AirSenseWarningLevel airSenseWarningLevel = 20;
+
+    float mobileStationAltitude = 21; //Altitude of the mobile station's receiver 1 antenna relative, to the ground system location. Units are meters.
+    float fusionMobileStationAltitude = 22; //The fusion altitude of the mobile station. The flight controller fuses the data from GPS, RTK and the barometer. The flight controller uses this altitude for navigation (e.g. waypoint mission) when RTK is available.
+    float baseStationAltitude = 23; //Altitude of the base station above sea level, in meters.
+}

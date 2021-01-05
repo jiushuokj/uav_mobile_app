@@ -1,0 +1,10 @@
+//topic:{SerialNumber}/Mobile/State/Battery
+syntax = "proto3";
+option java_package = "com.cetc.mobile.state";
+option java_outer_classname = "ProtoBattery";
+message Battery {
+    int32 chargeRemaining = 1;
+    int32 chargeRemainingInPercent = 2;
+    int32 voltage =3;
+    int32 current = 4;
+}

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/tab_layout_style">
+
+    <LinearLayout
+        android:id="@+id/layout_flight_controller_setting"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:text="图传设置"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <View
+            style="@style/setting_item_separate_line"
+            android:layout_height="2dp" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fadingEdge="vertical"
+            android:scrollbars="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:orientation="vertical">
+                <RelativeLayout style="@style/setting_item_common_layout">
+
+                    <TextView
+                        style="@style/setting_item_main_txt"
+                        android:text="选择图传相机" />
+
+                    <ImageButton style="@style/setting_item_next_btn" />
+                </RelativeLayout>
+
+                <View style="@style/setting_item_separate_line" />
+                <RelativeLayout style="@style/setting_item_common_layout">
+
+                    <TextView
+                        style="@style/setting_item_main_txt"
+                        android:text="工作频段" />
+
+                    <Spinner style="@style/setting_item_spinner"
+                        android:entries="@array/work_frequencies_array"/>
+                </RelativeLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/tab_layout_style">
+
+    <LinearLayout
+        android:id="@+id/layout_flight_controller_setting"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:text="飞控参数设置"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <View
+            style="@style/setting_item_separate_line"
+            android:layout_height="2dp" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fadingEdge="vertical"
+            android:scrollbars="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:orientation="vertical">
+
+                <RelativeLayout style="@style/setting_item_common_layout">
+
+                    <TextView
+                        style="@style/setting_item_main_txt"
+                        android:text="返航点设置" />
+
+                    <Spinner
+                        android:id="@+id/spinner_go_home"
+                        style="@style/setting_item_spinner" />
+                </RelativeLayout>
+
+                <View style="@style/setting_item_separate_line" />
+
+
+                <RelativeLayout style="@style/setting_item_common_layout">
+
+                    <TextView
+                        style="@style/setting_item_main_txt"
+                        android:text="允许切换飞行模式" />
+
+                    <Switch
+                        android:id="@+id/switch_fight_mode_enabled"
+                        style="@style/setting_item_switch" />
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="110dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/flight_controller_3" />
+                </LinearLayout>
+
+                <View style="@style/setting_item_separate_line" />
+
+                <RelativeLayout style="@style/setting_item_common_layout">
+
+                    <TextView
+                        style="@style/setting_item_main_txt"
+                        android:text="返航高度" />
+
+                    <TextView
+                        style="@style/setting_item_secondary_text"
+                        android:layout_toLeftOf="@id/edit_text_go_home_height"
+                        android:text="20~500m" />
+
+                    <EditText
+                        android:id="@+id/edit_text_go_home_height"
+                        style="@style/setting_item_edit_text"
+                        android:inputType="number" />
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="70dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/flight_controller_4" />
+                </LinearLayout>
+
+                <View style="@style/setting_item_separate_line" />
+
+                <RelativeLayout style="@style/setting_item_common_layout">
+
+                    <TextView
+                        style="@style/setting_item_main_txt"
+                        android:text="限高" />
+
+                    <TextView
+                        style="@style/setting_item_secondary_text"
+                        android:layout_toLeftOf="@id/edit_text_max_height"
+                        android:text="20~500m" />
+
+                    <EditText
+                        android:id="@+id/edit_text_max_height"
+                        style="@style/setting_item_edit_text"
+                        android:inputType="number" />
+                </RelativeLayout>
+
+                <View style="@style/setting_item_separate_line" />
+
+                <RelativeLayout style="@style/setting_item_common_layout">
+
+                    <TextView
+                        style="@style/setting_item_main_txt"
+                        android:text="距离限制" />
+
+                    <Switch
+                        android:id="@+id/switch_max_distance_enabled"
+                        style="@style/setting_item_switch" />
+                </RelativeLayout>
+
+                <View style="@style/setting_item_separate_line" />
+
+                <RelativeLayout style="@style/setting_item_common_layout">
+
+                    <TextView
+                        style="@style/setting_item_main_txt"
+                        android:text="限远" />
+
+                    <TextView
+                        style="@style/setting_item_secondary_text"
+                        android:layout_toLeftOf="@id/edit_text_max_distance"
+                        android:text="15~8000m" />
+
+                    <EditText
+                        android:id="@+id/edit_text_max_distance"
+                        style="@style/setting_item_edit_text"
+                        android:inputType="number" />
+                </RelativeLayout>
+
+                <View style="@style/setting_item_separate_line" />
+
+                <RelativeLayout style="@style/setting_item_common_layout">
+
+                    <TextView
+                        style="@style/setting_item_main_txt"
+                        android:text="传感器状态" />
+
+                    <ImageButton
+                        android:id="@+id/next_img_btn_sensor_state"
+                        style="@style/setting_item_next_btn" />
+                </RelativeLayout>
+
+                <View style="@style/setting_item_separate_line" />
+
+                <RelativeLayout style="@style/setting_item_common_layout">
+
+                    <TextView
+                        style="@style/setting_item_main_txt"
+                        android:text="失控行为" />
+
+                    <Spinner
+                        android:id="@+id/spinner_out_of_control_behavior"
+                        android:entries="@array/out_of_control_action_type_array"
+                        style="@style/setting_item_spinner" />
+                </RelativeLayout>
+
+                <View style="@style/setting_item_separate_line" />
+
+                <RelativeLayout style="@style/setting_item_common_layout">
+
+                    <TextView
+                        style="@style/setting_item_main_txt"
+                        android:text="重心自动校准" />
+
+                    <Button
+                        android:id="@+id/btn_gravity_self_calibration"
+                        style="@style/setting_item_btn"
+                        android:text="校准" />
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="70dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/flight_controller_5" />
+                </LinearLayout>
+
+                <View style="@style/setting_item_separate_line" />
+
+                <RelativeLayout style="@style/setting_item_common_layout">
+
+                    <TextView
+                        style="@style/setting_item_main_txt"
+                        android:text="扩展IO选项" />
+
+                    <ImageButton
+                        android:id="@+id/next_img_btn_extend_io_options"
+                        style="@style/setting_item_next_btn" />
+                </RelativeLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_extend_io_setting"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:id="@+id/btn_expand_io_setting_return"
+                style="@style/setting_item_return_btn" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_margin="10dp"
+                android:text="扩展IO配置"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+        <View
+            style="@style/setting_item_separate_line"
+            android:layout_height="2dp" />
+
+        <RelativeLayout style="@style/setting_item_common_layout">
+
+            <TextView
+                style="@style/setting_item_main_txt"
+                android:text="使能外部供电口" />
+
+            <Switch
+                android:id="@+id/switch_power_supply_port"
+                style="@style/setting_item_switch" />
+        </RelativeLayout>
+
+        <View style="@style/setting_item_separate_line" />
+
+        <RelativeLayout style="@style/setting_item_common_layout">
+
+            <TextView
+                style="@style/setting_item_main_txt"
+                android:text="使能OSDK通信串口" />
+
+            <Switch
+                android:id="@+id/switch_osdk_communication_serial_port"
+                style="@style/setting_item_switch" />
+        </RelativeLayout>
+
+        <View style="@style/setting_item_separate_line" />
+
+        <RelativeLayout style="@style/setting_item_common_layout">
+
+            <TextView
+                style="@style/setting_item_main_txt"
+                android:text="使能Time sync和PWM功能" />
+
+            <Switch
+                android:id="@+id/switch_time_sync_and_pwm_function"
+                style="@style/setting_item_switch" />
+        </RelativeLayout>
+
+        <View style="@style/setting_item_separate_line" />
+
+    </LinearLayout>
+</LinearLayout>

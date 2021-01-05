@@ -1,0 +1,17 @@
+//topic:{SerialNumber}/Mobile/State/RTK
+syntax = "proto3";
+option java_package = "com.cetc.mobile.state";
+option java_outer_classname = "ProtoRTK";
+message RTK {
+    bool isConnected = 1;
+    bool isRTKBeingUsed = 2;
+    enum HeadingSolution {
+        NONE = 0;
+        SINGLE_POINT = 16;
+        FLOAT = 34;
+        FIXED_POINT = 50;
+        UNKNOWN = 51;
+    }
+    HeadingSolution headingSolution = 3;
+
+}

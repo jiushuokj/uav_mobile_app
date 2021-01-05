@@ -1,0 +1,16 @@
+//topic:{SerialNumber}/Mobile/State/Gimbal
+syntax = "proto3";
+option java_package = "com.cetc.mobile.state";
+option java_outer_classname = "ProtoGimbal";
+message Gimbal {
+    enum GimbalMode {
+        FREE = 0;
+        FPV = 1;
+        YAW_FOLLOW = 2;
+        UNKNOWN = 255;
+    }
+    GimbalMode gimbalMode = 1;
+    float pitch = 2;
+    float roll = 3;
+    float yaw = 4;
+}

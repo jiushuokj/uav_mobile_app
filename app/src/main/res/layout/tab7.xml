@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/tab_layout_style">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:text="其他参数设置"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+    <View style="@style/setting_item_separate_line"
+        android:layout_height="2dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fadingEdge="vertical"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical">
+
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="Mqtt服务器地址" />
+
+                <EditText
+                    android:id="@+id/edit_text_mqtt_url"
+                    style="@style/setting_item_edit_text"
+                    android:layout_width="240dp"
+                    android:inputType="textUri" />
+            </RelativeLayout>
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="Mqtt服务器连接状态" />
+
+                <Button
+                    android:id="@+id/btn_query_mqtt_status"
+                    style="@style/setting_item_btn"
+                    android:text="查询" />
+            </RelativeLayout>
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="Rtmp推流服务器地址" />
+
+                <EditText
+                    android:id="@+id/edit_text_rtmp_url"
+                    style="@style/setting_item_edit_text"
+                    android:layout_width="240dp"
+                    android:inputType="textUri" />
+            </RelativeLayout>
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="启用UDP推流" />
+
+                <Switch
+                    android:id="@+id/switch_rtmp_video_encode"
+                    style="@style/setting_item_switch" />
+            </RelativeLayout>
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="Rtmp推流视频声音" />
+
+                <Switch
+                    android:id="@+id/switch_rtmp_sound_on"
+                    style="@style/setting_item_switch" />
+            </RelativeLayout>
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="Rtmp推流视频源" />
+
+                <Spinner
+                    android:id="@+id/spinner_rtmp_video_source"
+                    style="@style/setting_item_spinner" />
+            </RelativeLayout>
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="是否进行Rtmp推流" />
+
+                <Switch
+                    android:id="@+id/switch_rtmp_on_off"
+                    style="@style/setting_item_switch" />
+            </RelativeLayout>
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="Ftp服务器地址" />
+
+                <EditText
+                    android:id="@+id/edit_text_ftp_url"
+                    style="@style/setting_item_edit_text"
+                    android:layout_width="240dp"
+                    android:inputType="textUri" />
+            </RelativeLayout>
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="Ftp服务器账号" />
+
+                <EditText
+                    android:id="@+id/edit_text_ftp_usr"
+                    style="@style/setting_item_edit_text"
+                    android:layout_width="240dp"
+                    android:inputType="textUri" />
+            </RelativeLayout>
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="Ftp服务器密码" />
+
+                <EditText
+                    android:id="@+id/edit_text_ftp_psd"
+                    style="@style/setting_item_edit_text"
+                    android:layout_width="240dp"
+                    android:inputType="textUri" />
+            </RelativeLayout>
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="测试连接Ftp服务器" />
+
+                <Button
+                    android:id="@+id/btn_connect_to_ftp_server"
+                    style="@style/setting_item_btn"
+                    android:text="测试" />
+            </RelativeLayout>
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="照相机SD卡文件列表状态" />
+
+                <Button
+                    android:id="@+id/btn_query_file_list_state"
+                    style="@style/setting_item_btn"
+                    android:text="查询" />
+            </RelativeLayout>
+
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="下载上传最近多媒体文件" />
+
+                <Button
+                    android:id="@+id/btn_download_upload_file_list"
+                    style="@style/setting_item_btn"
+                    android:text="执行" />
+            </RelativeLayout>
+
+            <View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="下载上传所有多媒体文件" />
+
+                <Button
+                    android:id="@+id/btn_download_upload_all_file"
+                    style="@style/setting_item_btn"
+                    android:text="执行" />
+            </RelativeLayout>
+
+            <!--<View style="@style/setting_item_separate_line" />
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="语音播报" />
+
+                <Button
+                    android:id="@+id/btn_speech"
+                    style="@style/setting_item_btn"
+                    android:text="播报" />
+            </RelativeLayout>-->
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

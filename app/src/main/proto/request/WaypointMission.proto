@@ -1,0 +1,59 @@
+//topic:{SerialNumber}/Mobile/RequestUtil/WaypointMission
+syntax = "proto3";
+option java_package = "com.cetc.mobile.request";
+option java_outer_classname = "ProtoWaypointMission";
+message WaypointMission {
+    string mission_name = 1;
+    float auto_flight_speed = 2;
+    float max_flight_speed = 3;
+    float mission_altitude = 4;
+    enum WaypointMissionHeadingMode {
+        AUTO = 0;//沿航线方向
+        USING_INITIAL_DIRECTION = 1;
+        CONTROL_BY_REMOTE_CONTROLLER = 2;//手动控制
+        USING_WAYPOINT_HEADING = 3;
+        TOWARD_POINT_OF_INTEREST = 4;
+    }
+    WaypointMissionHeadingMode heading_mode = 5;//飞行器偏航角，为USING_WAYPOINT_HEADING（依照每个航点设置）
+    bool gimbal_pitch_rotation_enabled = 6;//if the gimbal pitch rotation can be controlled during the waypoint mission. When true, gimbalPitch in Waypoint is used to control gimbal pitch.
+    enum WaypointMissionFinishedAction {
+        NO_ACTION = 0;
+        GO_HOME = 1;
+        AUTO_LAND = 2;
+        GO_FIRST_WAYPOINT = 3;
+        CONTINUE_UNTIL_END = 4;
+    }
+    WaypointMissionFinishedAction finished_action = 7;
+    repeated Waypoint waypoints = 8;
+    message Waypoint {
+        double latitude = 1;
+        double longitude = 2;
+        bool using_mission_altitude = 3;
+        float altitude = 4;
+        int32 heading = 5;
+        enum WaypointTurnMode {
+            CLOCKWISE = 0;
+            COUNTER_CLOCKWISE = 1;
+        }
+        WaypointTurnMode turn_mode = 6;
+        float gimbal_pitch = 7;
+        repeated WaypointAction actions = 8;
+    }
+    message WaypointAction {
+        enum WaypointActionType {
+            STAY = 0;
+            START_TAKE_PHOTO = 1;
+            START_RECORD = 2;
+            STOP_RECORD = 3;
+            ROTATE_AIRCRAFT = 4;
+            GIMBAL_PITCH = 5;
+            CAMERA_ZOOM = 7;
+            CAMERA_FOCUS = 8;
+            FINE_TUNE_GIMBAL_PITCH = 16;
+            RESET_GIMBAL_YAW = 17;
+        }
+        WaypointActionType action_type =1;
+        int32 action_param = 2;
+    }
+}
+

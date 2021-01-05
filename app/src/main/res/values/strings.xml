@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">无人机</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="product_information">产品信息</string>
+    <string name="connection_loose">状态：没有设备连接</string>
+    <string name="model_not_available">Model Not Available</string>
+    <string name="push_info">Push Info</string>
+    <string name="sdk_version">SDK Version: %1$s</string>
+
+    <string name="connection_only_rc">状态: 只有遥控器连接</string>
+    <string name="component_listview_live_stream">Live Stream</string>
+    <string name="success">Success</string>
+    <string name="flight_controller_subtitle_virtual_stick">Virtual Stick</string>
+    <string name="flight_controller_listview_virtual_stick">Virtual Stick</string>
+    <string name="tasks_list">任务列表</string>
+    <string name="new_task">新建</string>
+    <string name="edit_task">编辑</string>
+    <string name="delete_task">删除</string>
+    <string-array name="map_type_array">
+        <item>标准地图</item>
+        <item>卫星地图</item>
+        <item>夜间地图</item>
+    </string-array>
+    <string-array name="out_of_control_action_type_array">
+        <item>悬停</item>
+        <item>下降</item>
+        <item>返航</item>
+    </string-array>
+    <string-array name="controller_type_array">
+        <item>主控</item>
+        <item>辅控</item>
+    </string-array>
+    <string-array name="work_frequencies_array">
+        <item>双频</item>
+        <item>5.8G</item>
+        <item>2.4G</item>
+    </string-array>
+</resources>

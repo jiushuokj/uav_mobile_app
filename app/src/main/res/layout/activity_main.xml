@@ -1,0 +1,834 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_blue"
+    android:orientation="horizontal"
+    tools:context=".PlaybackActivity">
+
+    <!--主摄像头-->
+    <RelativeLayout
+        android:id="@+id/main_camera_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/main_camera_low_limit"
+        android:layout_below="@id/RemainingFlightTimeWidget"
+        android:background="@color/blue">
+
+        <dji.ux.widget.FPVWidget
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            custom:sourceCameraNameVisibility="true"
+            custom:videoSource="primary" />
+
+        <dji.ux.widget.RadarWidget
+            android:id="@+id/radar_widget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true" />
+
+        <dji.ux.widget.FPVOverlayWidget
+            android:id="@+id/fpv_overlay_widget"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            custom:overlayVideoSource="primary"/>
+    </RelativeLayout>
+
+    <!--    <com.dji.mediaManagerDemo.utils.VideoFeedView
+            android:id="@+id/video_view_primary_video"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/camera_status_bar"
+            android:layout_alignParentBottom="false"
+            android:layout_centerInParent="true" />-->
+
+    <!-- 小雷达以及飞行器位置参数栏-->
+    <dji.ux.widget.dashboard.DashboardWidget
+        android:id="@+id/Compass"
+        android:layout_width="740dp"
+        android:layout_height="158dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="210dp"
+        android:layout_marginBottom="-10dp" />
+
+    <!--    <dji.ux.widget.FPVWidget-->
+    <!--        android:id="@+id/video_view_fpv_video"-->
+    <!--        android:layout_width="200dp"-->
+    <!--        android:layout_height="150dp"-->
+    <!--        android:layout_alignParentRight="true"-->
+    <!--        android:layout_alignParentBottom="true"-->
+    <!--        android:layout_margin="5dp"-->
+    <!--        custom:sourceCameraNameVisibility="true"-->
+    <!--        custom:videoSource="secondary"-->
+    <!--        android:visibility="gone"-->
+    <!--        android:layout_alignParentEnd="true" />-->
+    <!--    右下角FPV-->
+    <RelativeLayout
+        android:id="@+id/video_view_fpv_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="5dp"
+        android:visibility="invisible">
+
+        <dji.ux.widget.FPVWidget
+            android:id="@+id/secondary_fpv_widget"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:layout_centerHorizontal="true"
+            custom:sourceCameraNameVisibility="true"
+            custom:videoSource="secondary" />
+    </RelativeLayout>
+
+
+    <!--主摄像头的下界-->
+    <RelativeLayout
+        android:id="@+id/main_camera_low_limit"
+        android:layout_width="200dp"
+        android:layout_height="155dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:visibility="invisible" />
+    <!--fpv摄像头放大按钮-->
+    <Button
+        android:id="@+id/btn_fpv_scale"
+        android:layout_width="200dp"
+        android:layout_height="150dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="5dp"
+        android:background="@color/transparent" />
+
+    <!-- 左下角高德地图-->
+    <RelativeLayout
+        android:id="@+id/main_left_bottom_map_layout"
+        android:layout_width="200dp"
+        android:layout_height="150dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="5dp">
+
+        <com.amap.api.maps.MapView
+            android:id="@+id/main_left_bottom_map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </RelativeLayout>
+    <!-- 无人机参数栏-->
+    <LinearLayout
+        android:id="@+id/signal_status_bar"
+        android:layout_width="match_parent"
+        android:layout_height="37.5dp"
+        android:background="@color/dark_gray"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_exit_app"
+            android:layout_width="37.5dp"
+            android:layout_height="37.5dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@drawable/exit_app" />
+
+
+        <!---29-->
+        <dji.ux.widget.PreFlightStatusWidget
+            android:layout_width="346dp"
+            android:layout_height="37.5dp" />
+
+        <!--       -24.5 -->
+        <dji.ux.widget.FlightModeWidget
+            android:layout_width="130dp"
+            android:layout_height="33dp" />
+
+        <dji.ux.widget.GPSSignalWidget
+            android:layout_width="66dp"
+            android:layout_height="33dp" />
+
+        <dji.ux.widget.VisionWidget
+            android:layout_width="33dp"
+            android:layout_height="33dp" />
+
+        <dji.ux.widget.RemoteControlSignalWidget
+            android:layout_width="57dp"
+            android:layout_height="33dp" />
+
+        <dji.ux.widget.VideoSignalWidget
+            android:layout_width="57dp"
+            android:layout_height="33dp" />
+
+        <!--        <dji.ux.widget.WiFiSignalWidget-->
+        <!--            android:layout_width="33dp"-->
+        <!--            android:layout_height="30dp" />-->
+
+        <dji.ux.widget.BatteryWidget
+            android:layout_width="144dp"
+            android:layout_height="33dp" />
+
+        <dji.ux.widget.ConnectionWidget
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:layout_marginTop="3dp" />
+    </LinearLayout>
+
+    <!--照相机相关参数栏-->
+    <LinearLayout
+        android:id="@+id/camera_status_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/signal_status_bar"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
+        android:background="@color/dark_gray"
+        android:gravity="right"
+        android:orientation="horizontal">
+
+        <dji.ux.widget.AutoExposureLockWidget
+            android:layout_width="45dp"
+            android:layout_height="45dp" />
+
+        <dji.ux.widget.FocusExposureSwitchWidget
+            android:layout_width="45dp"
+            android:layout_height="45dp" />
+
+        <dji.ux.widget.FocusModeWidget
+            android:layout_width="45dp"
+            android:layout_height="45dp" />
+
+        <dji.ux.widget.config.CameraConfigISOAndEIWidget
+            android:layout_width="90dp"
+            android:layout_height="45dp"
+            android:background="@color/dark_gray" />
+
+        <dji.ux.widget.config.CameraConfigShutterWidget
+            android:layout_width="90dp"
+            android:layout_height="45dp" />
+
+        <dji.ux.widget.config.CameraConfigApertureWidget
+            android:layout_width="90dp"
+            android:layout_height="45dp" />
+
+        <dji.ux.widget.config.CameraConfigEVWidget
+            android:layout_width="90dp"
+            android:layout_height="45dp" />
+
+        <dji.ux.widget.config.CameraConfigWBWidget
+            android:layout_width="105dp"
+            android:layout_height="45dp" />
+
+        <dji.ux.widget.config.CameraConfigStorageWidget
+            android:layout_width="195dp"
+            android:layout_height="45dp" />
+
+    </LinearLayout>
+
+    <!--剩余飞行时间栏-->
+    <dji.ux.widget.RemainingFlightTimeWidget
+        android:id="@+id/RemainingFlightTimeWidget"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="37.5dp"
+        android:background="@color/transparent" />
+
+
+    <!--交换地图和主摄像头按钮-->
+    <Button
+        android:id="@+id/btn_map_camera_exchange"
+        android:layout_width="200dp"
+        android:layout_height="150dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="5dp"
+        android:background="@color/transparent" />
+
+    <dji.ux.widget.ManualFocusWidget
+        android:layout_width="50dp"
+        android:layout_height="210dp"
+        android:layout_alignTop="@id/camera_status_bar"
+        android:layout_toLeftOf="@id/camera_capture_layout"
+        tools:ignore="RtlHardcoded" />
+
+    <!-- 左上角的夜航灯-->
+    <LinearLayout
+        android:id="@+id/up_left_widgets"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/signal_status_bar"
+        android:layout_alignParentLeft="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
+        android:background="@color/dark_gray"
+        android:gravity="left"
+        android:orientation="horizontal">
+
+        <dji.ux.widget.BeaconWidget
+            android:layout_width="45dp"
+            android:layout_height="45dp" />
+    </LinearLayout>
+
+    <!--左边的起飞和回家按钮 -->
+    <LinearLayout
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
+        android:orientation="vertical">
+
+        <dji.ux.widget.TakeOffWidget
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="12dp" />
+
+        <dji.ux.widget.ReturnHomeWidget
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="12dp" />
+    </LinearLayout>
+
+
+    <!--右边的摄像机控制面板和三个按钮-->
+    <LinearLayout
+        android:id="@+id/camera_capture_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/camera_status_bar"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
+
+        <dji.ux.widget.controls.CameraControlsWidget
+            android:id="@+id/CameraCapturePanel"
+            android:layout_width="55dp"
+            android:layout_height="234.3dp" />
+
+        <TextView style="@style/right_btn_separate_line" />
+
+        <Button
+            android:id="@+id/btn_mediaManager"
+            style="@style/right_btns"
+            android:text="图库" />
+
+        <TextView
+            style="@style/right_btn_separate_line"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_live_stream_setting"
+            style="@style/right_btns"
+            android:text="推流"
+            android:visibility="gone" />
+
+
+        <TextView style="@style/right_btn_separate_line" />
+
+        <Button
+            android:id="@+id/btn_tasks_panel"
+            style="@style/right_btns"
+            android:text="任务"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!--摄像机曝光设置面板-->
+    <dji.ux.panel.CameraSettingExposurePanel
+        android:id="@+id/CameraExposureMode"
+        android:layout_width="216dp"
+        android:layout_height="315.6dp"
+        android:layout_below="@id/camera_status_bar"
+        android:layout_marginLeft="360dp"
+        android:layout_toLeftOf="@id/camera_capture_layout"
+        android:background="@color/transparent"
+        android:gravity="center"
+        android:visibility="invisible" />
+
+    <!--摄像机高级设置面板-->
+    <dji.ux.panel.CameraSettingAdvancedPanel
+        android:id="@+id/CameraAdvancedSetting"
+        android:layout_width="216dp"
+        android:layout_height="315.6dp"
+        android:layout_below="@id/camera_status_bar"
+        android:layout_marginLeft="360dp"
+        android:layout_toLeftOf="@id/camera_capture_layout"
+        android:background="@color/transparent"
+        android:gravity="center"
+        android:visibility="invisible" />
+
+    <LinearLayout
+        android:id="@+id/waypoint_locate_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/RemainingFlightTimeWidget"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_toLeftOf="@id/camera_capture_layout"
+        android:orientation="horizontal">
+
+        <!--离线地图管理按钮-->
+        <Button
+            android:id="@+id/off_map_setting_btn"
+            android:layout_width="39dp"
+            android:layout_height="39dp"
+            android:layout_margin="5dp"
+            android:alpha="0.7"
+            android:background="@drawable/offline_map_setting"
+            android:visibility="gone" />
+        <!--选择地图类型-->
+        <Spinner
+            android:id="@+id/map_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="39dp"
+            android:layout_margin="5dp"
+            android:alpha="0.7"
+            android:background="@color/white"
+            android:entries="@array/map_type_array"
+            android:visibility="gone" />
+
+        <!--清除航迹按钮-->
+        <Button
+            android:id="@+id/waypoint_clear_trace"
+            android:layout_width="39dp"
+            android:layout_height="39dp"
+            android:layout_margin="5dp"
+            android:alpha="0.7"
+            android:background="@drawable/clear_trace"
+            android:visibility="gone" />
+
+        <!--定位无人机按钮-->
+        <Button
+            android:id="@+id/waypoint_locate"
+            android:layout_width="39dp"
+            android:layout_height="39dp"
+            android:layout_margin="5dp"
+            android:alpha="0.7"
+            android:background="@drawable/drone"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!--起飞前检查面板-->
+    <dji.ux.panel.PreFlightCheckListPanel
+        android:id="@+id/PreflightCheckView"
+        android:layout_width="600dp"
+        android:layout_height="600dp"
+        android:layout_below="@id/signal_status_bar"
+        android:visibility="gone" />
+
+    <!--右上角的Cetc按钮，弹出设置页面-->
+    <Button
+        android:id="@+id/cetc_btn"
+        android:layout_width="67dp"
+        android:layout_height="37.5dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:alpha="0.8"
+        android:background="@drawable/cetc_right_top" />
+
+
+    <com.jiushuo.uavRct.view.ZoomView
+        android:id="@+id/zoom_view"
+        android:layout_width="60dp"
+        android:layout_height="240dp"
+        android:layout_below="@id/camera_status_bar"
+        android:layout_marginLeft="600dp"
+        android:alpha="0.5"
+        android:background="@color/black_light"
+        />
+
+
+    <!--航点任务控制面板-->
+    <LinearLayout
+        android:id="@+id/tasks_panel"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/main_camera_low_limit"
+        android:layout_margin="3dp"
+        android:layout_toLeftOf="@id/camera_capture_layout"
+        android:alpha="0.75"
+        android:background="@color/gray_light"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:gravity="center"
+            android:text="航点任务控制"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="1.5dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/waypoint_add"
+                style="@style/waypoint_button"
+                android:text="新建/编辑" />
+
+            <Button
+                android:id="@+id/waypoint_delete"
+                style="@style/waypoint_button"
+                android:enabled="false"
+                android:text="删除" />
+
+            <Button
+                android:id="@+id/waypoint_clear"
+                style="@style/waypoint_button"
+                android:enabled="false"
+                android:text="清除" />
+
+            <Button
+                android:id="@+id/waypoint_upload"
+                style="@style/waypoint_button"
+                android:enabled="false"
+                android:text="上传" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="1.5dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/waypoint_start"
+                style="@style/waypoint_button"
+                android:enabled="false"
+                android:text="开始" />
+
+            <Button
+                android:id="@+id/waypoint_pause"
+                style="@style/waypoint_button"
+                android:enabled="false"
+                android:text="暂停" />
+
+            <Button
+                android:id="@+id/waypoint_resume"
+                style="@style/waypoint_button"
+                android:enabled="false"
+                android:text="继续" />
+
+            <Button
+                android:id="@+id/waypoint_stop"
+                style="@style/waypoint_button"
+                android:enabled="false"
+                android:text="停止" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!--设置面板-->
+    <LinearLayout
+        android:id="@+id/setting_panel"
+        android:layout_width="660dp"
+        android:layout_height="match_parent"
+        android:layout_below="@id/cetc_btn"
+        android:layout_alignParentRight="true"
+        android:layout_margin="2dp"
+        android:alpha="0.9"
+        android:background="@color/black"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <include layout="@layout/setting_left" />
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/id_viewpager"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <!--航点任务信息栏以及飞机坐标-->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="354dp"
+        android:layout_marginBottom="70dp"
+        android:background="@color/black_half"
+        android:orientation="horizontal">
+
+        <LinearLayout style="@style/waypoint_mission_info_layout">
+
+            <TextView
+                style="@style/waypoint_mission_info_text"
+                android:text="航点个数" />
+
+            <TextView
+                android:id="@+id/waypoint_number_txt"
+                style="@style/waypoint_mission_info_text"
+                android:text="0" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/waypoint_mission_info_layout">
+
+            <TextView
+                style="@style/waypoint_mission_info_text"
+                android:text="任务距离" />
+
+            <TextView
+                android:id="@+id/waypoint_distance_txt"
+                style="@style/waypoint_mission_info_text"
+                android:text="0m" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/waypoint_mission_info_layout">
+
+            <TextView
+                style="@style/waypoint_mission_info_text"
+                android:text="任务时间" />
+
+            <TextView
+                android:id="@+id/waypoint_time_txt"
+                style="@style/waypoint_mission_info_text"
+                android:text="0h00m00s" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/waypoint_mission_info_layout">
+
+            <TextView
+                style="@style/waypoint_mission_info_text"
+                android:text="飞机纬度" />
+
+            <TextView
+                android:id="@+id/aircraft_latitude_txt"
+                style="@style/waypoint_mission_info_text"
+                android:text="00.00000" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/waypoint_mission_info_layout">
+
+        <TextView
+            style="@style/waypoint_mission_info_text"
+            android:text="飞机经度" />
+
+        <TextView
+            android:id="@+id/aircraft_longitude_txt"
+            style="@style/waypoint_mission_info_text"
+            android:text="000.00000" />
+    </LinearLayout>
+
+        <LinearLayout style="@style/waypoint_mission_info_layout">
+
+            <TextView
+                style="@style/waypoint_mission_info_text"
+                android:text="云台俯仰角" />
+
+            <TextView
+                android:id="@+id/gimbal_pitch_txt"
+                style="@style/waypoint_mission_info_text"
+                android:text="0.0度" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!--航点任务配置面板-->
+    <LinearLayout
+        android:id="@+id/waypoint_config_panel"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/camera_status_bar"
+        android:layout_margin="3dp"
+        android:layout_toLeftOf="@id/camera_capture_layout"
+        android:alpha="0.75"
+        android:background="@color/gray_light"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="3dp"
+            android:text="航点配置"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="高度:" />
+
+            <EditText
+                android:id="@+id/altitude"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="速度:" />
+
+            <RadioGroup
+                android:id="@+id/speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/lowSpeed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="低" />
+
+                <RadioButton
+                    android:id="@+id/MidSpeed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="中" />
+
+                <RadioButton
+                    android:id="@+id/HighSpeed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="高" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="任务完成后动作:" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioGroup
+                android:id="@+id/actionAfterFinished"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/finishNone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="无"
+                    android:textSize="5pt" />
+
+                <RadioButton
+                    android:id="@+id/finishGoHome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="回到原点"
+                    android:textSize="5pt" />
+
+                <RadioButton
+                    android:id="@+id/finishAutoLanding"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="自动降落"
+                    android:textSize="5pt" />
+
+                <RadioButton
+                    android:id="@+id/finishToFirst"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="到第一个航点"
+                    android:textSize="5pt" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="朝向:" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioGroup
+                android:id="@+id/heading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/headingNext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="自动"
+                    android:textSize="5pt" />
+
+                <RadioButton
+                    android:id="@+id/headingInitDirec"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="初始朝向"
+                    android:textSize="5pt" />
+
+                <RadioButton
+                    android:id="@+id/headingRC"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="遥控器控制"
+                    android:textSize="5pt" />
+
+                <RadioButton
+                    android:id="@+id/headingWP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="航点方向"
+                    android:textSize="5pt" />
+            </RadioGroup>
+        </LinearLayout>
+    </LinearLayout>
+
+
+</RelativeLayout>

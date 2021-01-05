@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/connection_background" />
+
+    <!--状态-->
+    <TextView
+        android:id="@+id/text_connection_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="720dp"
+        android:layout_marginTop="55dp"
+        android:text="@string/connection_loose"
+        android:textColor="@android:color/black"
+        android:textSize="18dp"
+        android:textStyle="bold" />
+
+    <!--产品信息-->
+    <TextView
+        android:id="@+id/text_product_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="@string/product_information"
+        android:textColor="@android:color/black"
+        android:textSize="25dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/text_model_available"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="85dp"
+        android:gravity="center"
+        android:text="无可用信息"
+        android:textSize="15dp" />
+
+    <!--Bridge IP 输入框-->
+    <EditText
+        android:id="@+id/edittext_bridge_ip"
+        android:layout_width="150dp"
+        android:layout_height="55dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="630dp"
+        android:digits="0123456789.\n"
+        android:hint="Bridge App IP"
+        android:imeOptions="actionDone"
+        android:inputType="numberDecimal"
+        android:maxLength="15"
+        android:maxLines="1"
+        android:nextFocusLeft="@id/edittext_bridge_ip"
+        android:nextFocusUp="@id/edittext_bridge_ip"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="15dp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="680dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_open"
+            android:layout_width="150dp"
+            android:layout_height="55dp"
+            android:layout_margin="25dp"
+            android:background="@drawable/round_btn"
+            android:text="进入"
+            android:textColor="@color/colorWhite"
+            android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/btn_exit"
+            android:layout_width="150dp"
+            android:layout_height="55dp"
+            android:layout_margin="25dp"
+            android:background="@drawable/round_btn"
+            android:text="退出"
+            android:textColor="@color/colorWhite"
+            android:textSize="20dp" />
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/textView_sdk_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="660dp"
+        android:text="@string/sdk_version"
+        android:textSize="15dp" />
+
+    <!--<TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="50dp"
+        android:text="Cetc-28 无人机"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/black_overlay"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:layout_alignParentTop="true"
+         />-->
+
+</RelativeLayout>

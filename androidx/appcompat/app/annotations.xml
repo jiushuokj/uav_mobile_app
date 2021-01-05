@@ -1,0 +1,7 @@
+<root>
+    <item name='androidx.appcompat.app.AppCompatActivity T findViewById(int)'>
+        <annotation name='org.jetbrains.annotations.Contract'>
+            <val name="pure" val="true" />
+        </annotation>
+    </item>
+</root>

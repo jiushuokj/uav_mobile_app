@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/tab_layout_style">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:text="感知参数设置"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <View
+        style="@style/setting_item_separate_line"
+        android:layout_height="2dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fadingEdge="vertical"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical">
+
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="启用视觉避障系统" />
+
+                <Switch
+                    android:id="@+id/switch_visual_obstacle_avoidance_system"
+                    style="@style/setting_item_switch" />
+            </RelativeLayout>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="314dp"
+                android:layout_weight="1"
+                android:src="@drawable/sensor_3" />
+
+            <View
+                style="@style/setting_item_separate_line" />
+
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="显示雷达图" />
+
+                <Switch
+                    android:id="@+id/switch_show_radar"
+                    style="@style/setting_item_switch" />
+            </RelativeLayout>
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="114dp"
+                android:layout_weight="1"
+                android:src="@drawable/sensor_4" />
+
+            <View
+                style="@style/setting_item_separate_line"
+                />
+
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="启用顶部红外感知系统" />
+
+                <Switch
+                    android:id="@+id/switch_top_infrared_sensing_system"
+                    style="@style/setting_item_switch" />
+            </RelativeLayout>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@drawable/sensor_5" />
+
+            <View
+                style="@style/setting_item_separate_line"
+                />
+
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="启用下视定位系统" />
+
+                <Switch
+                    android:id="@+id/switch_down_view_positioning_system"
+                    style="@style/setting_item_switch" />
+            </RelativeLayout>
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="95dp"
+                android:layout_weight="1"
+                android:src="@drawable/sensor_6" />
+
+            <View
+                style="@style/setting_item_separate_line"
+                />
+
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
+                    android:text="返航障碍物检测" />
+
+                <Switch
+                    android:id="@+id/switch_obstacle_detection_for_return_voyage"
+                    style="@style/setting_item_switch" />
+            </RelativeLayout>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="111dp"
+                android:layout_weight="1"
+                android:src="@drawable/sensor_7" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
