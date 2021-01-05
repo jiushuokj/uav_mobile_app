@@ -30,7 +30,7 @@ public class ZoomView extends LinearLayout implements View.OnClickListener {
     private static final String TAG = "ZoomView";
     private Button zoomInButton, zoomOutButton, zoomResetButton;
     private TextView magnificationText;
-    private Camera camera = DemoApplication.getAircraftInstance().getCameras().get(0);
+//    private Camera camera = DemoApplication.getAircraftInstance().getCameras().get(0);
     /***
      * 总结digitalZoomFactor， opticalZoomFactor， opticalZoomFocalLength三者关系
      * digitalZoomFactor：数字变焦倍数，表示在光学变焦倍数到最大后（这里最大是30），再放大的参数，这样放大后，画面会很不清楚，最大可以再放大6倍
@@ -74,74 +74,74 @@ public class ZoomView extends LinearLayout implements View.OnClickListener {
 
 
     private void doUpdateMagnificationText() {
-        Message message = new Message();
-        message.what = UPDATE_TEXT;
-        handler.sendMessage(message);
+//        Message message = new Message();
+//        message.what = UPDATE_TEXT;
+//        handler.sendMessage(message);
     }
 
     private void initAircraftParams() {
 
-        if (camera.isDigitalZoomSupported()) {
-            camera.getDigitalZoomFactor(new CommonCallbacks.CompletionCallbackWith<Float>() {
-                @Override
-                public void onSuccess(Float aFloat) {
-                    digitalZoomFactor = aFloat;
-                    Log.i(TAG, "digitalZoomFactor = " + aFloat);
-                }
-
-                @Override
-                public void onFailure(DJIError djiError) {
-                    Log.e(TAG, "onFailure: " + djiError);
-                }
-            });
-        }
-
-        if (camera.isOpticalZoomSupported()) {
-            getFocalLengthParameters();
-        }
+//        if (camera.isDigitalZoomSupported()) {
+//            camera.getDigitalZoomFactor(new CommonCallbacks.CompletionCallbackWith<Float>() {
+//                @Override
+//                public void onSuccess(Float aFloat) {
+//                    digitalZoomFactor = aFloat;
+//                    Log.i(TAG, "digitalZoomFactor = " + aFloat);
+//                }
+//
+//                @Override
+//                public void onFailure(DJIError djiError) {
+//                    Log.e(TAG, "onFailure: " + djiError);
+//                }
+//            });
+//        }
+//
+//        if (camera.isOpticalZoomSupported()) {
+//            getFocalLengthParameters();
+//        }
 
     }
 
     private void getFocalLengthParameters() {
-        camera.getOpticalZoomFactor(new CommonCallbacks.CompletionCallbackWith<Float>() {
-            @Override
-            public void onSuccess(Float aFloat) {
-                opticalZoomFactor = aFloat;
-                Log.i(TAG, "opticalZoomFactor = " + aFloat);
-            }
-
-            @Override
-            public void onFailure(DJIError djiError) {
-                Log.e(TAG, "onFailure: " + djiError);
-                ToastUtils.showToast(djiError.getDescription());
-            }
-        });
-        camera.getOpticalZoomFocalLength(new CommonCallbacks.CompletionCallbackWith<Integer>() {
-            @Override
-            public void onSuccess(Integer integer) {
-                opticalZoomFocalLength = integer;
-                Log.i(TAG, "opticalZoomFocalLength = " + integer);
-            }
-
-            @Override
-            public void onFailure(DJIError djiError) {
-                Log.e(TAG, "onFailure: " + djiError);
-            }
-        });
-        camera.getOpticalZoomSpec(new CommonCallbacks.CompletionCallbackWith<SettingsDefinitions.OpticalZoomSpec>() {
-            @Override
-            public void onSuccess(SettingsDefinitions.OpticalZoomSpec zoomSpec) {
-                opticalZoomSpec = zoomSpec;
-                Log.i(TAG, "opticalZoomSpec: FocalLengthStep = " + zoomSpec.getFocalLengthStep());
-                Log.i(TAG, "opticalZoomSpec: MaxFocalLength = " + zoomSpec.getMaxFocalLength());
-                Log.i(TAG, "opticalZoomSpec: MinFocalLength = " + zoomSpec.getMinFocalLength());
-            }
-
-            @Override
-            public void onFailure(DJIError djiError) {
-                ToastUtils.showToast(djiError.getDescription());
-            }
-        });
+//        camera.getOpticalZoomFactor(new CommonCallbacks.CompletionCallbackWith<Float>() {
+//            @Override
+//            public void onSuccess(Float aFloat) {
+//                opticalZoomFactor = aFloat;
+//                Log.i(TAG, "opticalZoomFactor = " + aFloat);
+//            }
+//
+//            @Override
+//            public void onFailure(DJIError djiError) {
+//                Log.e(TAG, "onFailure: " + djiError);
+//                ToastUtils.showToast(djiError.getDescription());
+//            }
+//        });
+//        camera.getOpticalZoomFocalLength(new CommonCallbacks.CompletionCallbackWith<Integer>() {
+//            @Override
+//            public void onSuccess(Integer integer) {
+//                opticalZoomFocalLength = integer;
+//                Log.i(TAG, "opticalZoomFocalLength = " + integer);
+//            }
+//
+//            @Override
+//            public void onFailure(DJIError djiError) {
+//                Log.e(TAG, "onFailure: " + djiError);
+//            }
+//        });
+//        camera.getOpticalZoomSpec(new CommonCallbacks.CompletionCallbackWith<SettingsDefinitions.OpticalZoomSpec>() {
+//            @Override
+//            public void onSuccess(SettingsDefinitions.OpticalZoomSpec zoomSpec) {
+//                opticalZoomSpec = zoomSpec;
+//                Log.i(TAG, "opticalZoomSpec: FocalLengthStep = " + zoomSpec.getFocalLengthStep());
+//                Log.i(TAG, "opticalZoomSpec: MaxFocalLength = " + zoomSpec.getMaxFocalLength());
+//                Log.i(TAG, "opticalZoomSpec: MinFocalLength = " + zoomSpec.getMinFocalLength());
+//            }
+//
+//            @Override
+//            public void onFailure(DJIError djiError) {
+//                ToastUtils.showToast(djiError.getDescription());
+//            }
+//        });
     }
 
     private void initUI(Context context) {
@@ -192,21 +192,21 @@ public class ZoomView extends LinearLayout implements View.OnClickListener {
     }
 
     private void updateMagnificationText() {
-        camera.getOpticalZoomFocalLength(new CommonCallbacks.CompletionCallbackWith<Integer>() {
-            @Override
-            public void onSuccess(Integer integer) {
-                opticalZoomFocalLength = integer;
-                Log.i(TAG, "opticalZoomFocalLength = " + integer);
-                doUpdateMagnificationText();
-                mqttBinder.makeZoomResponse(RequestUtil.CODE_SUCCESS,String.format("%.1f", (float) (opticalZoomFocalLength / opticalZoomSpec.getMinFocalLength())));
-            }
-
-            @Override
-            public void onFailure(DJIError djiError) {
-                Log.e(TAG, "onFailure: " + djiError);
-
-            }
-        });
+//        camera.getOpticalZoomFocalLength(new CommonCallbacks.CompletionCallbackWith<Integer>() {
+//            @Override
+//            public void onSuccess(Integer integer) {
+//                opticalZoomFocalLength = integer;
+//                Log.i(TAG, "opticalZoomFocalLength = " + integer);
+//                doUpdateMagnificationText();
+//                mqttBinder.makeZoomResponse(RequestUtil.CODE_SUCCESS,String.format("%.1f", (float) (opticalZoomFocalLength / opticalZoomSpec.getMinFocalLength())));
+//            }
+//
+//            @Override
+//            public void onFailure(DJIError djiError) {
+//                Log.e(TAG, "onFailure: " + djiError);
+//
+//            }
+//        });
     }
 
     public void zoomIn() {
@@ -220,17 +220,19 @@ public class ZoomView extends LinearLayout implements View.OnClickListener {
     }
 
     public void setOpticalZoomFocalLength(int focalLength) {
-        camera.setOpticalZoomFocalLength(focalLength, new CommonCallbacks.CompletionCallback() {
-            @Override
-            public void onResult(DJIError djiError) {
-                if (djiError == null) {
-                    Log.i(TAG, "setOpticalZoomFocalLength: " + (focalLength));
-                } else {
-                    Log.e(TAG, "setOpticalZoomFocalLength: " + djiError.getDescription());
-                }
-                updateMagnificationText();
-            }
-        });
+//        camera.setOpticalZoomFocalLength(focalLength, new CommonCallbacks.CompletionCallback() {
+//            @Override
+//            public void onResult(DJIError djiError) {
+//                if (djiError == null) {
+//                    Log.i(TAG, "setOpticalZoomFocalLength: " + (focalLength));
+//                } else {
+//                    Log.e(TAG, "setOpticalZoomFocalLength: " + djiError.getDescription());
+//                }
+//                updateMagnificationText();
+//            }
+//        });
+
+
     }
 
     public void setMqttBinder(MyMqttService.MqttBinder mqttBinder) {

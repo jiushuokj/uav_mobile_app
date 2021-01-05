@@ -9,7 +9,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.location.Location;
+//import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -29,24 +29,33 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.amap.api.maps.AMap;
-import com.amap.api.maps.AMapUtils;
-import com.amap.api.maps.CameraUpdate;
-import com.amap.api.maps.CameraUpdateFactory;
-import com.amap.api.maps.LocationSource;
-import com.amap.api.maps.MapView;
-import com.amap.api.maps.model.BitmapDescriptorFactory;
-import com.amap.api.maps.model.LatLng;
-import com.amap.api.maps.model.Marker;
-import com.amap.api.maps.model.MarkerOptions;
-import com.amap.api.maps.model.MyLocationStyle;
-import com.amap.api.maps.model.Polyline;
-import com.amap.api.maps.model.PolylineOptions;
+//import com.amap.api.maps.AMap;
+//import com.amap.api.maps.AMapUtils;
+//import com.amap.api.maps.CameraUpdate;
+//import com.amap.api.maps.CameraUpdateFactory;
+//import com.amap.api.maps.LocationSource;
+//import com.amap.api.maps.MapView;
+//import com.amap.api.maps.model.BitmapDescriptorFactory;
+//import com.amap.api.maps.model.LatLng;
+//import com.amap.api.maps.model.Marker;
+//import com.amap.api.maps.model.MarkerOptions;
+//import com.amap.api.maps.model.MyLocationStyle;
+//import com.amap.api.maps.model.Polyline;
+//import com.amap.api.maps.model.PolylineOptions;
+import com.dji.mapkit.core.camera.DJICameraUpdate;
+import com.dji.mapkit.core.maps.DJIMap;
+import com.dji.mapkit.core.models.DJIBitmapDescriptorFactory;
+import com.dji.mapkit.core.models.DJILatLng;
+import com.dji.mapkit.core.models.annotations.DJIMarker;
+import com.dji.mapkit.core.models.annotations.DJIMarkerOptions;
+import com.dji.mapkit.core.models.annotations.DJIPolyline;
+import com.dji.mapkit.core.models.annotations.DJIPolylineOptions;
 import com.jiushuo.uavRct.R;
 import com.jiushuo.uavRct.entity.sqlite.Action;
 import com.jiushuo.uavRct.entity.sqlite.Mission;
@@ -82,6 +91,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import dji.common.airlink.PhysicalSource;
 import dji.common.camera.SettingsDefinitions;
 import dji.common.error.DJICameraError;
 import dji.common.error.DJIError;
@@ -100,7 +110,9 @@ import dji.common.model.LocationCoordinate2D;
 import dji.common.useraccount.UserAccountState;
 import dji.common.util.CommonCallbacks;
 import dji.log.DJILog;
+import dji.sdk.airlink.AirLink;
 import dji.sdk.base.BaseProduct;
+import dji.sdk.camera.Camera;
 import dji.sdk.flightcontroller.FlightController;
 import dji.sdk.media.DownloadListener;
 import dji.sdk.media.MediaFile;
@@ -119,8 +131,14 @@ import dji.thirdparty.io.reactivex.disposables.Disposable;
 import dji.thirdparty.io.reactivex.functions.Consumer;
 import dji.thirdparty.io.reactivex.schedulers.Schedulers;
 import dji.ux.widget.FPVOverlayWidget;
+import dji.ux.widget.MapWidget;
 
-public class MainActivity extends BaseActivity implements View.OnClickListener, AMap.OnMyLocationChangeListener, LocationSource, AMap.OnMapClickListener {
+import static com.dji.mapkit.core.maps.DJIMap.MAP_TYPE_NORMAL;
+import static dji.common.camera.CameraVideoStreamSource.INFRARED_THERMAL;
+import static dji.common.camera.CameraVideoStreamSource.WIDE;
+import static dji.common.camera.CameraVideoStreamSource.ZOOM;
+
+public class MainActivity extends BaseActivity implements View.OnClickListener, DJIMap.OnMapClickListener {
     private static final String TAG = "主活动";
     public static final double DELTA = 0.00001;
     private static final int EXIT_APP_FIRST_TIME = 10001;
@@ -128,35 +146,38 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private static final String TAG2 = "多媒体上传";
     private static final String TAG3 = "多媒体删除";
 
-
     public View radarWidget;
-    private Button mMediaManagerBtn, mFpvScaleBtn;
+    private Button mMediaManagerBtn, mFpvScaleBtn,mVideosrcChangeBtn;
     private View fpvVideoFeedView, secondaryFpvWidget;
     private FPVOverlayWidget fpvOverlayWidget;
     private View cameraSettingAdvancedPanel, cameraSettingExposurePanel;
     private Button mLiveStreamSettingBtn, mTasksPanelButton, mExitAppButton;
     private LinearLayout mTasksPanel;
-    private ZoomView mZoomView;
+//    private ZoomView mZoomView;
     private boolean isFpvScaleUp, isMapScaleUp;
     private RelativeLayout mainCameraLayout, mainMapLayout;
-    private MapView aMapView;
-    private AMap aMap;
     private Spinner mapSpinner;
     private Button locate, add, delete, clear, clearTrace, offMapSettingButton;
     private Button upload, start, pause, resume, stop;
+    private Button mMapCameraExchangeBtn;
     private boolean isAdd = false;
     private FlightController mFlightController;
+    private AirLink mAirLink;
+    private int mVideoSrcIndex = 0;
+    private Camera mcamera;
     private double droneLocationLat = DemoApplication.getAircraftInstance().getFlightController().getState().getAircraftLocation().getLatitude();
     private double droneLocationLng = DemoApplication.getAircraftInstance().getFlightController().getState().getAircraftLocation().getLongitude();
     private double droneLocationLatForTrace = DemoApplication.getAircraftInstance().getFlightController().getState().getAircraftLocation().getLatitude();
     private double droneLocationLngForTrace = DemoApplication.getAircraftInstance().getFlightController().getState().getAircraftLocation().getLongitude();
     private int droneHeadDirection;
-    private final Map<Integer, Marker> mMarkers = new ConcurrentHashMap<Integer, Marker>();//地图上的标记点
-    private final Map<Integer, Polyline> mPolylines = new ConcurrentHashMap<Integer, Polyline>();//标记点之间的线
-    private final Map<Integer, Polyline> mTracePolylines = new ConcurrentHashMap<Integer, Polyline>();//飞行轨迹
-    private Marker selectedMarker = null;
-    private Marker droneMarker = null;
-    private Marker homeMarker = null;
+    private final Map<Integer, DJIMarker> mMarkers = new ConcurrentHashMap<Integer, DJIMarker>();//地图上的标记点
+    private final Map<Integer, DJIPolyline> mPolylines = new ConcurrentHashMap<Integer, DJIPolyline>();//标记点之间的线
+//    private final Map<Integer, DJIPolyline> mTracePolylines = new ConcurrentHashMap<Integer, DJIPolyline>();//飞行轨迹
+    private DJIMarker selectedMarker = null;
+    private DJIMarker droneMarker = null;
+    private DJIMarker homeMarker = null;
+    private MapWidget mapWidget;
+    private DJIMap djiMap = null;
 
     private List<Waypoint> waypointList = new ArrayList<Waypoint>();
     public static WaypointMission.Builder waypointMissionBuilder;
@@ -166,7 +187,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private float mSpeed = 5.0f;
     private WaypointMissionFinishedAction mFinishedAction = WaypointMissionFinishedAction.GO_HOME;
     private WaypointMissionHeadingMode mHeadingMode = WaypointMissionHeadingMode.AUTO;
-    private TextView waypointNumText, waypointDistanceText, waypointTimeText, aircraftLatitudeText, aircraftLongitudeText, gimbalPitchText;//航点任务相关信息
+    private TextView waypointNumText, waypointDistanceText, waypointTimeText, aircraftLatitudeText, aircraftLongitudeText, gimbalPitchText,videoSrcName;//航点任务相关信息
     private Intent mMqttServiceIntent;
     private Disposable makeTraceDisposable;
     private boolean isFlying;
@@ -190,7 +211,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private long downloadAllMediaTime;
     //要删除的文件集合
     private ArrayList<MediaFile> fileToDelete = new ArrayList<MediaFile>();
-//    private int fetchFileListRetryCurrentTimes = 0;
 
     //设置面板的元素
     private Button jskjButton;//用于控制设置面板显隐
@@ -241,36 +261,36 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             mqttBinder = (MyMqttService.MqttBinder) service;
             mqttBinder.getMyMqttService().setWaypointDataCallback(new MyMqttService.WaypointDataCallback() {
                 @Override
-                public void onDataReceived(List<Waypoint> waypointList) {
+                public void onDataReceived(List<Waypoint> waypointList,float distance, int time_s) {
                     Log.i(TAG, "onDataReceived: 接收到远程发送的航点任务数据：" + waypointList);
                     //首先清除地图上的航点
                     clearWaypoint();
                     //再将从远程接收到的航点显示在地图上
                     for (Waypoint waypoint : waypointList) {
-                        markWaypoint(CoordinateTransUtils.getGDLatLng(waypoint.coordinate.getLatitude(), waypoint.coordinate.getLongitude()));
+                        markWaypoint( new DJILatLng(waypoint.coordinate.getLatitude(), waypoint.coordinate.getLongitude())); //CoordinateTransUtils.getGDLatLng(waypoint.coordinate.getLatitude(), waypoint.coordinate.getLongitude()));
                     }
                     //更新航点任务信息数据
-                    updateWaypointMissionInfo();
+                    updateWaypointMissionInfo(waypointList.size(),distance,time_s);
                 }
             });
-            mZoomView.setMqttBinder(mqttBinder);
+            //mZoomView.setMqttBinder(mqttBinder);
             mqttBinder.getMyMqttService().setZoomCallback(new MyMqttService.ZoomCallback() {
                 @Override
                 public void onZoomInReceived() {
                     Log.i(TAG, "onZoomInReceived: 接收到远程发送ZoomIn指令");
-                    mZoomView.zoomIn();
+                    //mZoomView.zoomIn();
                 }
 
                 @Override
                 public void onZoomOutReceived() {
                     Log.i(TAG, "onZoomOutReceived: 接收到远程发送ZoomOut指令");
-                    mZoomView.zoomOut();
+                   // mZoomView.zoomOut();
                 }
 
                 @Override
                 public void onZoomResetReceived() {
                     Log.i(TAG, "onZoomResetReceived: 接收到远程发送ZoomReset指令");
-                    mZoomView.zoomReset();
+                    //mZoomView.zoomReset();
                 }
             });
             mqttBinder.getMyMqttService().setGimbalStateCallback(new MyMqttService.GimbalStateCallback() {
@@ -297,12 +317,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         setContentView(R.layout.activity_main);
         RegisterConnectionChangeBroadcastReceiver();
         initAirCraftParams();
+        Log.w(TAG, "ltz initAirCraftParams");
         initUI();
+        Log.w(TAG, "ltz initUI");
         initMap(savedInstanceState);
+        Log.w(TAG, "ltz initMap");
         startMyMqttService();
+        Log.w(TAG, "ltz startMyMqttService");
         initFtpServerConnection(true);
-//        LitePal.getDatabase();
-        Log.w(TAG, "onCreate: ");
+        Log.w(TAG, "ltz initFtpServerConnection");
     }
 
     public void initFtpServerConnection(boolean isConnectionTest) {
@@ -332,7 +355,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         waypointMissionOperator = DJISDKManager.getInstance().getMissionControl().getWaypointMissionOperator();
         initMediaManager();
         initFlightController();
+        initAirLink();
         addWaypointMissionOperatorListener();
+        Log.w(TAG, "ltz addWaypointMissionOperatorListener: ");
     }
 
     private void updateGimbalPitchText(float gimbalPitch) {
@@ -353,41 +378,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
     };
 
-    private void startRecordingTrace() {
-        if (makeTraceDisposable != null && !makeTraceDisposable.isDisposed()) {
-            return;
-        }
-        Log.i(TAG, "startRecordingTrace: " + "开始记录航线");
-        makeTraceDisposable = Observable.interval(500, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Long>() {
-                    @Override
-                    public void accept(Long aLong) throws Exception {
-                        if (!DoubleComparer.considerEqual(droneLocationLatForTrace, mFlightController.getState().getAircraftLocation().getLatitude(), DELTA) ||
-                                !DoubleComparer.considerEqual(droneLocationLngForTrace, mFlightController.getState().getAircraftLocation().getLongitude(), DELTA)) {
-                            //坐标转换
-//                            final LatLng oldLatlng = new LatLng(droneLocationLatForTrace, droneLocationLngForTrace);
-                            final LatLng oldLatlng = CoordinateTransUtils.getGDLatLng(droneLocationLatForTrace, droneLocationLngForTrace);
-                            droneLocationLatForTrace = mFlightController.getState().getAircraftLocation().getLatitude();
-                            droneLocationLngForTrace = mFlightController.getState().getAircraftLocation().getLongitude();
-                            //坐标转换
-//                            final LatLng newLatlng = new LatLng(droneLocationLatForTrace, droneLocationLngForTrace);
-                            final LatLng newLatlng = CoordinateTransUtils.getGDLatLng(droneLocationLatForTrace, droneLocationLngForTrace);
-                            Polyline polyline = aMap.addPolyline(new PolylineOptions().
-                                    addAll(Arrays.asList(oldLatlng, newLatlng)).width(4).color(Color.argb(255, 255, 1, 1)));
-                            mTracePolylines.put(mTracePolylines.size(), polyline);
-                            Log.d(TAG, "startRecordingTrace: " + mTracePolylines.size() + "次轨迹");
-                        }
-                    }
-                });
-    }
-
-    private void stopRecordingTrace() {
-        if (makeTraceDisposable != null && !makeTraceDisposable.isDisposed()) {
-            Log.i(TAG, "stopRecordingTrace: " + "结束记录航线");
-            makeTraceDisposable.dispose();
-        }
-    }
-
     private void startMyMqttService() {
         //将MainActivity和Service进行绑定
         Intent intent = new Intent(this, MyMqttService.class);
@@ -400,6 +390,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private void initUI() {
         radarWidget = findViewById(R.id.radar_widget);
 
+        videoSrcName = findViewById(R.id.text_video_source_name);
         waypointNumText = findViewById(R.id.waypoint_number_txt);
         waypointDistanceText = findViewById(R.id.waypoint_distance_txt);
         waypointTimeText = findViewById(R.id.waypoint_time_txt);
@@ -408,8 +399,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         updateAircraftLocationText();
         gimbalPitchText = findViewById(R.id.gimbal_pitch_txt);
 
-        mMediaManagerBtn = findViewById(R.id.btn_mediaManager);
+//        mMediaManagerBtn = findViewById(R.id.btn_mediaManager);
         mLiveStreamSettingBtn = findViewById(R.id.btn_live_stream_setting);
+        mVideosrcChangeBtn = findViewById(R.id.btn_videosrcChanger);
 
         fpvOverlayWidget = findViewById(R.id.fpv_overlay_widget);
         /*fpvOverlayWidget.setOnTouchListener(new View.OnTouchListener() {
@@ -427,7 +419,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         secondaryFpvWidget = findViewById(R.id.secondary_fpv_widget);
         if (Helper.isMultiStreamPlatform()) {
             fpvVideoFeedView.setVisibility(View.VISIBLE);
-            secondaryFpvWidget.setVisibility(View.VISIBLE);
+//            secondaryFpvWidget.setVisibility(View.VISIBLE);
         }
 
         mainCameraLayout = findViewById(R.id.main_camera_layout);
@@ -436,10 +428,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mFpvScaleBtn = findViewById(R.id.btn_fpv_scale);
         mFpvScaleBtn.setOnClickListener(this);
 
-        mMediaManagerBtn.setOnClickListener(this);
+//        mMediaManagerBtn.setOnClickListener(this);
         mLiveStreamSettingBtn.setOnClickListener(this);
+        mVideosrcChangeBtn.setOnClickListener(this);
 
-        Button mMapCameraExchangeBtn = findViewById(R.id.btn_map_camera_exchange);
+        mMapCameraExchangeBtn = findViewById(R.id.btn_map_camera_exchange);
         mMapCameraExchangeBtn.setOnClickListener(this);
 
         mapSpinner = findViewById(R.id.map_spinner);
@@ -449,13 +442,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch ((int) id) {
                     case 0:
-                        aMap.setMapType(AMap.MAP_TYPE_NORMAL);
+                        djiMap.setMapType(DJIMap.MAP_TYPE_NORMAL);
+                        //aMap.setMapType(AMap.MAP_TYPE_NORMAL);
                         break;
                     case 1:
-                        aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
+                        djiMap.setMapType(DJIMap.MAP_TYPE_SATELLITE);
+                       // aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
                         break;
                     case 2:
-                        aMap.setMapType(AMap.MAP_TYPE_NIGHT);
+                        djiMap.setMapType(DJIMap.MAP_TYPE_NIGHT);
+                        //aMap.setMapType(AMap.MAP_TYPE_NIGHT);
                         break;
                 }
             }
@@ -475,7 +471,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             }
         });
 
-        locate = (Button) findViewById(R.id.waypoint_locate);
+//        locate = (Button) findViewById(R.id.waypoint_locate);
         add = (Button) findViewById(R.id.waypoint_add);
         delete = findViewById(R.id.waypoint_delete);
         clear = (Button) findViewById(R.id.waypoint_clear);
@@ -487,7 +483,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         resume = findViewById(R.id.waypoint_resume);
         stop = (Button) findViewById(R.id.waypoint_stop);
 
-        locate.setOnClickListener(this);
+//        locate.setOnClickListener(this);
         add.setOnClickListener(this);
         delete.setOnClickListener(this);
         clear.setOnClickListener(this);
@@ -498,13 +494,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         resume.setOnClickListener(this);
         stop.setOnClickListener(this);
 
-        mTasksPanelButton = findViewById(R.id.btn_tasks_panel);
-        mTasksPanelButton.setOnClickListener(this);
+//        mTasksPanelButton = findViewById(R.id.btn_tasks_panel);
+//        mTasksPanelButton.setOnClickListener(this);
         mExitAppButton = findViewById(R.id.btn_exit_app);
         mExitAppButton.setOnClickListener(this);
 
         mTasksPanel = findViewById(R.id.tasks_panel);
-        mZoomView = findViewById(R.id.zoom_view);
+        //mZoomView = findViewById(R.id.zoom_view);
 
         jskjButton = findViewById(R.id.jskj_btn);
         jskjButton.setOnClickListener(this);
@@ -513,9 +509,103 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         initWaypointSettingUi();
     }
 
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.btn_videosrcChanger: {
+                if (mAirLink != null && mAirLink.isOcuSyncLinkSupported()) {
+                    mVideoSrcIndex++;
+                    if(mVideoSrcIndex == 4){
+                        mVideoSrcIndex = 0;
+                    }
+                    switch(mVideoSrcIndex){
+                        case 0:
+                            mAirLink.getOcuSyncLink().assignSourceToPrimaryChannel(PhysicalSource.LEFT_CAM,PhysicalSource.FPV_CAM, new CommonCallbacks.CompletionCallback() {
+                                @Override
+                                public void onResult(DJIError djiError) {
+                                    if (djiError == null) {
+                                        mcamera.setCameraVideoStreamSource(WIDE, new CommonCallbacks.CompletionCallback (){
+                                            @Override
+                                            public void onResult(DJIError djiError) {
+                                                if (djiError == null) {
+                                                    setResultToToast("切换视频源成功");
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            videoSrcName.setText("广角");
+                                                        }
+                                                    });
+                                                } else {
+                                                    setResultToToast("切换视频源失败: " + djiError.getDescription());
+                                                }
+                                            }
+                                        });
+                                    } else {
+                                        setResultToToast("切换视频源失败: " + djiError.getDescription());
+                                    }
+                                }
+                            });
+                            break;
+                        case 1:
+                            mcamera.setCameraVideoStreamSource(ZOOM, new CommonCallbacks.CompletionCallback (){
+                                @Override
+                                public void onResult(DJIError djiError) {
+                                    if (djiError == null) {
+                                        setResultToToast("切换视频源成功");
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                videoSrcName.setText("变焦");
+                                            }
+                                        });
+                                    } else {
+                                        setResultToToast("切换视频源失败: " + djiError.getDescription());
+                                    }
+                                }
+                            });
+                            break;
+                        case 2:
+                            mcamera.setCameraVideoStreamSource(INFRARED_THERMAL, new CommonCallbacks.CompletionCallback (){
+                                @Override
+                                public void onResult(DJIError djiError) {
+                                    if (djiError == null) {
+                                        setResultToToast("切换视频源成功");
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                videoSrcName.setText("红外");
+                                            }
+                                        });
+                                    } else {
+                                        setResultToToast("切换视频源失败: " + djiError.getDescription());
+                                    }
+                                }
+                            });
+                            break;
+                        case 3:
+                            mAirLink.getOcuSyncLink().assignSourceToPrimaryChannel(PhysicalSource.FPV_CAM,PhysicalSource.LEFT_CAM, new CommonCallbacks.CompletionCallback() {
+                                @Override
+                                public void onResult(DJIError djiError) {
+                                    if (djiError == null) {
+                                        setResultToToast("切换视频源成功");
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                videoSrcName.setText("FPV");
+                                            }
+                                        });
+                                    } else {
+                                        setResultToToast("切换视频源失败: " + djiError.getDescription());
+                                    }
+                                }
+                            });
+                            break;
+                    }
+                    //mfpvWidget.setVideoSource(FPVWidget.VideoSource.PRIMARY);
+                }
+                break;
+            }
             case R.id.btn_mediaManager: {
                 if (!isStreamOn()) {
                     Intent intent = new Intent(this, PlaybackActivity.class);
@@ -527,7 +617,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             }
 
             case R.id.btn_fpv_scale: {
-                scaleFpv();
+                //scaleFpv();
                 break;
             }
 
@@ -538,28 +628,27 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 break;
             }
 
-            case R.id.waypoint_locate: {
-                setHomeMarker();
-                updateDroneLocation();
-                cameraUpdate(); // Locate the drone's place
-                updateAircraftLocationText();
-                break;
-            }
-            case R.id.waypoint_add: {
-                enableDisableAdd();
-                updateWaypointMissionInfo();
-                break;
-            }
-            case R.id.waypoint_delete: {
-                deleteSelectedMarker();
-                updateWaypointMissionInfo();
-                break;
-            }
-            case R.id.waypoint_clear: {
-                clearWaypoint();
-                updateWaypointMissionInfo();
-                break;
-            }
+//            case R.id.waypoint_locate: {
+//                updateDroneLocation();
+//                cameraUpdate(); // Locate the drone's place
+//                updateAircraftLocationText();
+//                break;
+//            }
+//            case R.id.waypoint_add: {
+//                enableDisableAdd();
+//                updateWaypointMissionInfo();
+//                break;
+//            }
+//            case R.id.waypoint_delete: {
+//                deleteSelectedMarker();
+//                updateWaypointMissionInfo();
+//                break;
+//            }
+//            case R.id.waypoint_clear: {
+//                clearWaypoint();
+//                updateWaypointMissionInfo();
+//                break;
+//            }
 
             case R.id.waypoint_clear_trace: {
                 clearTrace();
@@ -617,10 +706,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         if (settingPanel.getVisibility() == View.VISIBLE) {
             settingPanel.setVisibility(View.INVISIBLE);
             mFpvScaleBtn.setEnabled(true);
+            mMapCameraExchangeBtn.setEnabled(true);
         } else {
             settingPanel.setVisibility(View.VISIBLE);
             settingPanel.bringToFront();
             mFpvScaleBtn.setEnabled(false);
+            mMapCameraExchangeBtn.setEnabled(false);
         }
     }
 
@@ -806,22 +897,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             setResultToToast("无人机正在飞行，请在无人机降落后再试！");
             return;
         }
-        if (mTracePolylines.size() == 0) {
-            setResultToToast("地图上没有航迹！");
-            return;
-        }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                for (Integer integer : mTracePolylines.keySet()) {
-                    mTracePolylines.get(integer).remove();
-                }
-                Log.i(TAG, "clearTrace: " + mTracePolylines.size());
-                mTracePolylines.clear();
-                Log.i(TAG, "clearTrace: " + mTracePolylines.size());
-                setResultToToast("清除航迹成功！");
-            }
-        });
+        mapWidget.clearFlightPath();
     }
 
     private void clearWaypoint() {
@@ -840,7 +916,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         });
         waypointList.clear();
         waypointMissionBuilder.waypointList(waypointList);
-        updateDroneLocation();
     }
 
     private void resumeWaypointMission() {
@@ -897,77 +972,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         });
     }
 
-    /**
-     * 删除地图上当前选定的标记
-     * 1.mMarkers中删除该点，地图上删除点，并且在mMarkers中将其后面的点往前移动
-     * 2.mPolyLines中删除该点有关的两条线，地图也删除，并且将其前后两点相连
-     * 3.选中改点的下一点为当前标记
-     */
-    private void deleteSelectedMarker() {
-        if (selectedMarker == null) {
-            setResultToToast("当前没有选中标记");
-            return;
-        }
-        if (mMarkers.size() == 0) {
-            setResultToToast("当前地图上没有标记");
-            return;
-        }
-        final Integer selectedIndex = getKey(mMarkers, selectedMarker);
-        if (selectedIndex < 0) {
-            setResultToToast("选中的标记不在mMarker中");
-            return;
-        }
-        selectedMarker.remove();
-        for (int i = selectedIndex; i < mMarkers.size() - 1; i++) {
-            mMarkers.put(i, mMarkers.get(i + 1));
-        }
-        mMarkers.remove(mMarkers.size() - 1);
-        if (mPolylines.size() == 0) {
-            setResultToToast("当前地图上没有连线");
-        } else if (mPolylines.size() == 1) {
-            //只有一个点
-            for (Integer integer : mPolylines.keySet()) {
-                mPolylines.get(integer).remove();
-                mPolylines.remove(integer);
-            }
-        } else if (selectedIndex == mPolylines.size() - 1) {
-            //最后一个点
-            mPolylines.get(selectedIndex).remove();
-            mPolylines.remove(selectedIndex);
-            setSelectedMarker(mMarkers.get(selectedIndex - 1));
-        } else {
-            LatLng homeLatLng = getHomeLatLng();
-
-            Polyline newPolyline = aMap.addPolyline((new PolylineOptions())
-                    .add(selectedIndex == 0 ? homeLatLng : mMarkers.get(selectedIndex - 1).getPosition(),
-                            mMarkers.get(selectedIndex).getPosition())
-                    .width(5)
-                    .setDottedLine(true) //虚线
-                    .color(Color.BLUE));
-            Polyline selectedPolyline = mPolylines.get(selectedIndex);
-            selectedPolyline.remove();
-            Polyline nextSelectedPolyline = mPolylines.get(selectedIndex + 1);
-            nextSelectedPolyline.remove();
-            mPolylines.put(selectedIndex, newPolyline);
-            for (int i = selectedIndex + 1; i < mPolylines.size() - 1; i++) {
-                mPolylines.put(i, mPolylines.get(i + 1));
-            }
-            mPolylines.remove(mPolylines.size() - 1);
-            setSelectedMarker(mMarkers.get(selectedIndex));
-        }
-        for (Integer integer : mMarkers.keySet()) {
-            Log.i(TAG, "deleteSelectedMarker: 第" + integer + "个标记" + mMarkers.get(integer).getPosition());
-        }
-        for (Integer integer : mPolylines.keySet()) {
-            Log.i(TAG, "deleteSelectedMarker: 第" + integer + "条线" + mPolylines.get(integer).getPoints());
-        }
-    }
-
-    private LatLng getHomeLatLng() {
+    private DJILatLng getHomeLatLng() {
         LocationCoordinate2D home = mFlightController.getState().getHomeLocation();
         //坐标转换
 //        return new LatLng(home.getLatitude(), home.getLongitude());
-        return CoordinateTransUtils.getGDLatLng(home.getLatitude(), home.getLongitude());
+        return new DJILatLng(home.getLatitude(), home.getLongitude());
     }
 
     private void newTask() {
@@ -1023,88 +1032,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     private void initMap(Bundle savedInstanceState) {
-        //获取地图控件引用
-        aMapView = (MapView) findViewById(R.id.main_left_bottom_map);
-        //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
-        aMapView.onCreate(savedInstanceState);
-        aMapView.setOnClickListener(this);
-        if (aMap == null) {
-            aMap = aMapView.getMap();
-            aMap.setOnMapClickListener(this);// add the listener for click for amap object
-        }
-        MyLocationStyle myLocationStyle = new MyLocationStyle();//初始化定位蓝点样式类myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE);//连续定位、且将视角移动到地图中心点，定位点依照设备方向旋转，并且会跟随设备移动。（1秒1次定位）如果不设置myLocationType，默认也会执行此种模式。
-        myLocationStyle.strokeWidth(0);
-        myLocationStyle.showMyLocation(true);
-        myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW_NO_CENTER);//连续定位、蓝点不会移动到地图中心点，并且蓝点会跟随设备移动。
-        myLocationStyle.interval(2000); //设置连续定位模式下的定位间隔，只在连续定位模式下生效，单次定位模式下不会生效。单位为毫秒。
-//        myLocationStyle.myLocationIcon(BitmapDescriptorFactory.fromResource(R.drawable.pad));
-        aMap.setMyLocationStyle(myLocationStyle);//设置定位蓝点的Style
-        aMap.getUiSettings().setMyLocationButtonEnabled(true);//设置默认定位按钮是否显示，非必需设置。
-        aMap.setMyLocationEnabled(true);// 设置为true表示启动显示定位蓝点，false表示隐藏定位蓝点并不进行定位，默认是false。
-        aMap.moveCamera(CameraUpdateFactory.zoomTo(18));
-        //默认使用卫星图
-        aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
-        // 绑定 Marker 被点击事件
-        aMap.setOnMarkerClickListener(new AMap.OnMarkerClickListener() {
-            // marker 对象被点击时回调的接口
-            // 返回 true 则表示接口已响应事件，否则返回false
+        mapWidget = findViewById(R.id.map_widget);
+        mapWidget.initAMap( new MapWidget.OnMapReadyListener() {
+
             @Override
-            public boolean onMarkerClick(Marker marker) {
-                if (getKey(mMarkers, marker) >= 0) {
-                    setResultToToast("第" + getKey(mMarkers, marker) + "坐标" + marker.getPosition());
-                    setSelectedMarker(marker);
-                    return true;
-                }
-                return false;
+            public void onMapReady(@NonNull DJIMap map) {
+                djiMap = map;
+//                djiMap.setOnMapClickListener(this);
             }
         });
-        // 绑定marker拖拽事件
-        aMap.setOnMarkerDragListener(new AMap.OnMarkerDragListener() {
-            @Override
-            public void onMarkerDragStart(Marker arg0) {
-                setResultToToast("开始拖动：" + "第" + getKey(mMarkers, arg0) + "坐标");
-            }
 
-            @Override
-            public void onMarkerDragEnd(Marker arg0) {
-                setResultToToast("结束拖动：" + "第" + getKey(mMarkers, arg0) + "坐标");
-                Integer index = getKey(mMarkers, arg0);
-                if (index < 0) {
-                    return;
-                }
-                Log.i(TAG, "onMarkerDrag: ---" + index + "---" + arg0.getPosition());
-                // 以该标记作为终点的线
-                Polyline oldPolyline1 = mPolylines.get(index);
-                Polyline newPolyline1 = aMap.addPolyline((new PolylineOptions())
-                        .add(oldPolyline1.getPoints().get(0), arg0.getPosition())
-                        .width(5)
-                        .setDottedLine(true) //虚线
-                        .color(Color.BLUE));
-                mPolylines.put(index, newPolyline1);
-                oldPolyline1.remove();
-                // 以该标记作为起点的线
-                Polyline oldPolyline2 = mPolylines.get(index + 1);
-                Polyline newPolyline2 = aMap.addPolyline((new PolylineOptions())
-                        .add(arg0.getPosition(), oldPolyline2.getPoints().get(1))
-                        .width(5)
-                        .setDottedLine(true) //虚线
-                        .color(Color.BLUE));
-                mPolylines.put(index + 1, newPolyline2);
-                oldPolyline2.remove();
-            }
-
-            @Override
-            public void onMarkerDrag(Marker arg0) {
-
-            }
-        });
-        //显示指南针
-        aMap.getUiSettings().setCompassEnabled(true);
-        //显示比例尺
-        aMap.getUiSettings().setScaleControlsEnabled(true);
-        setHomeMarker();
-        updateDroneLocation();
-        cameraUpdate();
+        mapWidget.setFlightPathVisible(true);
+        mapWidget.setHomeVisible(true);
+        mapWidget.setFlightPathColor(Color.argb(255,139,134, 130));
+        mapWidget.onCreate(savedInstanceState);
     }
 
     //Add Listener for WaypointMissionOperator
@@ -1150,8 +1091,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             }
             if (!waypointMissionFinishedMap.get(waypointMissionStartTime)) {
                 Log.i(TAG, "真正执行完任务的动作: " + mqttBinder.getWaypointMissionId() + "--" + getFormattedDate(waypointMissionStartTime));
-                setHomeMarker();
-                updateDroneLocation();
+//                setHomeMarker();
+//                updateDroneLocation();
                 MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -1202,8 +1143,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         DemoApplication.getCameraInstance().getMode(new CommonCallbacks.CompletionCallbackWith<SettingsDefinitions.CameraMode>() {
             @Override
             public void onSuccess(SettingsDefinitions.CameraMode cameraMode) {
+                Log.i(TAG1, "当前相机工作模式为:"+cameraMode);
                 if (cameraMode != SettingsDefinitions.CameraMode.MEDIA_DOWNLOAD) {
-                    DemoApplication.getCameraInstance().setMode(SettingsDefinitions.CameraMode.MEDIA_DOWNLOAD, new CommonCallbacks.CompletionCallback() {
+                    DemoApplication.getCameraInstance().enterPlayback(new CommonCallbacks.CompletionCallback() {
                         @Override
                         public void onResult(DJIError error) {
                             if (error == null) {
@@ -1214,6 +1156,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                             }
                         }
                     });
+                    //DemoApplication.getCameraInstance().setMode(SettingsDefinitions.CameraMode.MEDIA_DOWNLOAD, );
                 } else {
                     Log.i(TAG, "当前照相机模式为MEDIA_DOWNLOAD");
                     getFileList();
@@ -1231,7 +1174,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private void getFileList() {
         mMediaManager = DemoApplication.getCameraInstance().getMediaManager();
         Log.i(TAG, "getFileList方法: currentFileListState-->" + currentFileListState);
-        setResultToToast("currentFileListState: " + currentFileListState);
+        setResultToToast("文件列表状态: " + currentFileListState);
         if (mMediaManager != null) {
             if ((currentFileListState == MediaManager.FileListState.SYNCING) || (currentFileListState == MediaManager.FileListState.DELETING)) {
                 DJILog.e(TAG1, "多媒体管理的文件列表状态为SYNCING或DELETING，不能下载");
@@ -1280,24 +1223,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             }
         }
     }
-
-/*    private void afterFetchingFileListFailedAction() {
-        //最多下载10次，次数可以扩展为自己设置
-        if (fetchFileListRetryCurrentTimes < 10) {
-            setResultToToast("从相机下载照片失败，1分钟后再试，当前第(" + (fetchFileListRetryCurrentTimes + 1) + "/" + 10 + ")次");
-            fetchFileListRetryCurrentTimes++;
-            setCameraModeToShootPhoto();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Log.i(TAG1, "1分钟后再下载一次");
-                    downloadRelatedMedia();
-                }
-            }, 60000);
-        } else {
-            setResultToToast("从相机下载照片失败，请手动从相机SD卡下载");
-        }
-    }*/
 
     private void downLoadMediaFiles() {
         if (mediaFileList.size() <= 0) {
@@ -1631,7 +1556,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     private void setCameraModeToShootPhoto() {
-        DemoApplication.getCameraInstance().setMode(SettingsDefinitions.CameraMode.SHOOT_PHOTO, new CommonCallbacks.CompletionCallback() {
+        //DemoApplication.getCameraInstance().setMode(SettingsDefinitions.CameraMode.SHOOT_PHOTO, new CommonCallbacks.CompletionCallback();
+        DemoApplication.getCameraInstance().exitPlayback(new CommonCallbacks.CompletionCallback() {
             @Override
             public void onResult(DJIError mError) {
                 if (mError != null) {
@@ -1643,6 +1569,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             }
         });
     }
+
 
     public WaypointMissionOperator getWaypointMissionOperator() {
         if (waypointMissionOperator == null) {
@@ -1672,6 +1599,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     private void initFlightController() {
+        Log.e(TAG, "ltz initFlightController");
         BaseProduct product = DemoApplication.getProductInstance();
         if (product != null && product.isConnected()) {
             if (product instanceof Aircraft) {
@@ -1693,14 +1621,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     }
                     if (isFlying != state.isFlying()) {
                         if (isFlying == false) {
-                            startRecordingTrace();
                             Log.i(TAG, "waypointMissionOperator的当前状态: " + waypointMissionOperator.getCurrentState());
                             isWaypointMission = false;
                             if (waypointMissionOperator.getCurrentState() == WaypointMissionState.EXECUTING) {
                                 isWaypointMission = true;
                             }
                         } else {
-                            stopRecordingTrace();
                             if (isWaypointMission) {
                                 Log.i(TAG, "下载相关的多媒体文件: " + getFormattedDate(getWaypointMissionStartTime()));
                                 //下载相关的Media
@@ -1714,22 +1640,35 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
     }
 
+    private void initAirLink() {
+        Log.e(TAG, "ltz initAirLink");
+        BaseProduct product = DemoApplication.getProductInstance();
+        if (product != null && product.isConnected()) {
+            if (product instanceof Aircraft) {
+                mAirLink = ((Aircraft) product).getAirLink();
+                mcamera = ((Aircraft) product).getCameraWithComponentIndex(0);
+            }
+        }
+        if (mAirLink != null && mAirLink.isOcuSyncLinkSupported()) {
+            mAirLink.getOcuSyncLink().assignSourceToPrimaryChannel(PhysicalSource.LEFT_CAM, PhysicalSource.FPV_CAM, new CommonCallbacks.CompletionCallback() {
+                @Override
+                public void onResult(DJIError djiError) {
+                    if (djiError == null) {
+                        setResultToToast("设置视频源成功");
+                    } else {
+                        setResultToToast("设置视频源成功失败: " + djiError.getDescription());
+                    }
+                }
+            });
+        }
+    }
+
     private void updateDroneLocation() {
         //坐标转换
-//        LatLng pos = new LatLng(droneLocationLat, droneLocationLng);
-        LatLng pos = CoordinateTransUtils.getGDLatLng(droneLocationLat, droneLocationLng);
-        //Create MarkerOptions object
-        final MarkerOptions markerOptions = new MarkerOptions().position(pos).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_compass_aircraft));
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (droneMarker != null) {
-                    droneMarker.remove();
-                }
                 if (checkGpsCoordination(droneLocationLat, droneLocationLng)) {
-                    droneMarker = aMap.addMarker(markerOptions);
-                    //图标根据机头方向旋转
-                    droneMarker.setRotateAngle(360 - (float) droneHeadDirection);
                     //显示飞机纬度经度
                     updateAircraftLocationText();
                 }
@@ -1758,16 +1697,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     private void cameraUpdate() {
         //坐标转换
-//        LatLng pos = new LatLng(droneLocationLat, droneLocationLng);
-        LatLng pos = CoordinateTransUtils.getGDLatLng(droneLocationLat, droneLocationLng);
-        float zoomlevel = (float) 18.0;
-        CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(pos, zoomlevel);
-        aMap.moveCamera(cu);
+//        LatLng pos = CoordinateTransUtils.getGDLatLng(droneLocationLat, droneLocationLng);
+//        float zoomlevel = (float) 18.0;
+//        CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(pos, zoomlevel);
+//        aMap.moveCamera(cu);
     }
 
     private void enableDisableAdd() {
-        setHomeMarker();
-        updateDroneLocation();
+//        setHomeMarker();
+//        updateDroneLocation();
         if (!isAdd) {
             if (mFlightController.getState().isFlying()) {
                 setResultToToast("无人机正在飞行，请在无人机降落后再试！");
@@ -1811,10 +1749,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         List<Waypoint> waypointList = new ArrayList<>();
         for (int i = 0; i < mMarkers.size(); i++) {
             //坐标转换
-            LatLng djiLatLng = CoordinateTransUtils.getDJILatLng(mMarkers.get(i).getPosition().latitude,
-                    mMarkers.get(i).getPosition().longitude);
-            Waypoint waypoint = new Waypoint(djiLatLng.latitude,
-                    djiLatLng.longitude, altitude);
+//            LatLng djiLatLng = CoordinateTransUtils.getDJILatLng(mMarkers.get(i).getPosition().latitude,
+//                    mMarkers.get(i).getPosition().longitude);
+            Waypoint waypoint = new Waypoint(mMarkers.get(i).getPosition().getLatitude(),
+                mMarkers.get(i).getPosition().getLongitude(), altitude);
             waypointList.add(waypoint);
         }
         waypointMissionBuilder
@@ -2040,42 +1978,50 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             upLeftWidgets.setVisibility(View.INVISIBLE);
 //            radarWidget.setVisibility(View.INVISIBLE);
             cameraControlsWidget.setVisibility(View.INVISIBLE);
+            mVideosrcChangeBtn.setVisibility(View.INVISIBLE);
 
-            locate.setVisibility(View.VISIBLE);
+//            locate.setVisibility(View.VISIBLE);
             mapSpinner.setVisibility(View.VISIBLE);
             offMapSettingButton.setVisibility(View.VISIBLE);
 
-            mMediaManagerBtn.setTextColor(getResources().getColor(R.color.black_half));
-            mMediaManagerBtn.setBackgroundColor(getResources().getColor(R.color.white));
+//            mMediaManagerBtn.setTextColor(getResources().getColor(R.color.black_half));
+//            mMediaManagerBtn.setBackgroundColor(getResources().getColor(R.color.white));
+//            mVideosrcChangeBtn.setTextColor(getResources().getColor(R.color.black_half));
+//            mVideosrcChangeBtn.setBackgroundColor(getResources().getColor(R.color.white));
             mLiveStreamSettingBtn.setTextColor(getResources().getColor(R.color.black_half));
             mLiveStreamSettingBtn.setBackgroundColor(getResources().getColor(R.color.white));
 
-            mTasksPanelButton.setVisibility(View.VISIBLE);
-            mTasksPanelButton.setTextColor(getResources().getColor(R.color.black_half));
-            mTasksPanelButton.setBackgroundColor(getResources().getColor(R.color.white));
+//            mTasksPanelButton.setVisibility(View.VISIBLE);
+//            mTasksPanelButton.setTextColor(getResources().getColor(R.color.black_half));
+//            mTasksPanelButton.setBackgroundColor(getResources().getColor(R.color.white));
 
-            mZoomView.setVisibility(View.INVISIBLE);
+            //mZoomView.setVisibility(View.INVISIBLE);
             clearTrace.setVisibility(View.VISIBLE);
         } else {
             cameraStatusBar.setVisibility(View.VISIBLE);
             upLeftWidgets.setVisibility(View.VISIBLE);
             radarWidget.setVisibility(View.VISIBLE);
             cameraControlsWidget.setVisibility(View.VISIBLE);
+            mVideosrcChangeBtn.setVisibility(View.VISIBLE);
 
-            locate.setVisibility(View.INVISIBLE);
+//            locate.setVisibility(View.INVISIBLE);
             mapSpinner.setVisibility(View.INVISIBLE);
             offMapSettingButton.setVisibility(View.INVISIBLE);
 
-            mMediaManagerBtn.setTextColor(getResources().getColor(R.color.white));
-            mMediaManagerBtn.setBackgroundColor(getResources().getColor(R.color.transparent));
+//            mMediaManagerBtn.setTextColor(getResources().getColor(R.color.white));
+//            mMediaManagerBtn.setBackgroundColor(getResources().getColor(R.color.transparent));
+            mVideosrcChangeBtn.setTextColor(getResources().getColor(R.color.white));
+            mVideosrcChangeBtn.setBackgroundColor(getResources().getColor(R.color.transparent));
             mLiveStreamSettingBtn.setTextColor(getResources().getColor(R.color.white));
             mLiveStreamSettingBtn.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-            mTasksPanelButton.setVisibility(View.INVISIBLE);
-            mTasksPanelButton.setTextColor(getResources().getColor(R.color.white));
-            mTasksPanelButton.setBackgroundColor(getResources().getColor(R.color.transparent));
+//            mTasksPanelButton.setVisibility(View.INVISIBLE);
+//            mTasksPanelButton.setTextColor(getResources().getColor(R.color.white));
+//            mTasksPanelButton.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-            mZoomView.setVisibility(View.VISIBLE);
+//            if(){
+//                mZoomView.setVisibility(View.VISIBLE);
+//            }
             mTasksPanel.setVisibility(View.INVISIBLE);
             clearTrace.setVisibility(View.INVISIBLE);
         }
@@ -2141,7 +2087,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             ftpClientFunctions.ftpDisconnect();
         }
         mMediaManager.removeFileListStateCallback(fileListStateListener);
-        aMapView.onDestroy();
+        //aMapView.onDestroy();
+        mapWidget.onDestroy();
+
         unregisterReceiver(mReceiver);
         removeListener();
         if (makeTraceDisposable != null && !makeTraceDisposable.isDisposed()) {
@@ -2154,12 +2102,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     mMarkers.get(integer).remove();
                     mPolylines.get(integer).remove();
                 }
-                for (Integer integer : mTracePolylines.keySet()) {
-                    mTracePolylines.get(integer).remove();
-                }
+//                for (Integer integer : mTracePolylines.keySet()) {
+//                    mTracePolylines.get(integer).remove();
+//                }
                 mMarkers.clear();
                 mPolylines.clear();
-                mTracePolylines.clear();
+//                mTracePolylines.clear();
             }
         });
 
@@ -2177,16 +2125,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     protected void onResume() {
         super.onResume();
         //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
-        aMapView.onResume();
+        //aMapView.onResume();
+        mapWidget.onResume();
+
         initAirCraftParams();
-        Log.w(TAG, "onResume: ");
+        Log.w(TAG, "ltz mainactivity onResume: ");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         //在activity执行onPause时执行mMapView.onPause ()，暂停地图的绘制
-        aMapView.onPause();
+        //aMapView.onPause();
+        mapWidget.onPause();
         Log.w(TAG, "onPause: ");
     }
 
@@ -2194,7 +2145,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         //在activity执行onSaveInstanceState时执行mMapView.onSaveInstanceState (outState)，保存地图当前的状态
-        aMapView.onSaveInstanceState(outState);
+        //aMapView.onSaveInstanceState(outState);
+        mapWidget.onSaveInstanceState(outState);
     }
 
     @Override
@@ -2214,56 +2166,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     @Override
-    public void onMyLocationChange(Location location) {
-        Log.w(TAG, "onMyLocationChange: " + location);
+    public void onMapClick(DJILatLng point) {
+//        if (isAdd) {
+//            markWaypoint(point);
+//            updateWaypointMissionInfo();
+//            Log.d(TAG, "onMapClick: " + " 经度：" + point.longitude + "  纬度：" + point.latitude);
+//            clear.setEnabled(true);
+//        } else {
+//            setResultToToast("地图不能进行点击操作！");
+//        }
     }
 
-    @Override
-    public void activate(LocationSource.OnLocationChangedListener onLocationChangedListener) {
-    }
-
-    @Override
-    public void deactivate() {
-
-    }
-
-    @Override
-    public void onMapClick(LatLng point) {
-        if (isAdd) {
-            markWaypoint(point);
-            updateWaypointMissionInfo();
-            Log.d(TAG, "onMapClick: " + " 经度：" + point.longitude + "  纬度：" + point.latitude);
-            clear.setEnabled(true);
-        } else {
-            setResultToToast("地图不能进行点击操作！");
-        }
-    }
-
-    private void updateWaypointMissionInfo() {
-        waypointNumText.setText(String.valueOf(mMarkers.size()));
-        float distance = calculateWaypointMissionDistance();
+    private void updateWaypointMissionInfo(int wpnum, float distance, int time_s) {
+        waypointNumText.setText(String.valueOf(wpnum));
         waypointDistanceText.setText((int) distance + "m");
-        waypointTimeText.setText(secToTime((int) (distance / mSpeed)));
-    }
-
-    private float calculateWaypointMissionDistance() {
-        float distance = 0;
-        if (mMarkers.size() == 0) {
-            return distance;
-        }
-        if (mMarkers.size() == 1) {
-            distance = AMapUtils.calculateLineDistance(homeMarker.getPosition(), mMarkers.get(0).getPosition());
-            return distance;
-        }
-
-        for (Integer integer : mMarkers.keySet()) {
-            if (integer.intValue() == 0) {
-                distance += AMapUtils.calculateLineDistance(homeMarker.getPosition(), mMarkers.get(0).getPosition());
-            } else {
-                distance += AMapUtils.calculateLineDistance(mMarkers.get(integer - 1).getPosition(), mMarkers.get(integer).getPosition());
-            }
-        }
-        return distance;
+        waypointTimeText.setText(secToTime(time_s));
     }
 
     public static String secToTime(int seconds) {
@@ -2287,63 +2204,34 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         return sb.toString();
     }
 
-    private void setHomeMarker() {
-        final MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(getHomeLatLng());
-        markerOptions.draggable(false);
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (homeMarker != null) {
-                    homeMarker.remove();
-                }
-                homeMarker = aMap.addMarker(markerOptions);
-                Log.i(TAG, "setHomeMarker: " + markerOptions.getPosition());
-            }
-        });
-    }
-
-    private void markWaypoint(final LatLng point) {
+    private void markWaypoint(final DJILatLng point) {
         //Create MarkerOptions object
-        MarkerOptions markerOptions = new MarkerOptions();
+        DJIMarkerOptions markerOptions = new DJIMarkerOptions ();
         markerOptions.position(point);
         markerOptions.draggable(true);
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
-        Marker marker = aMap.addMarker(markerOptions);
+        //markerOptions.icon(DJIBitmapDescriptorFactory.defaultMarker(DJIBitmapDescriptorFactory.HUE_ORANGE));
+
+        DJIMarker marker = djiMap.addMarker(markerOptions);
         //画线
-        List<LatLng> latLngs = new ArrayList<LatLng>();
+        List<DJILatLng> latLngs = new ArrayList<DJILatLng>();
         if (mMarkers.size() == 0) {
-            LatLng homeLatLng = getHomeLatLng();
+            DJILatLng homeLatLng = getHomeLatLng();
             Log.i(TAG, "home坐标：" + homeLatLng.latitude + "---" + homeLatLng.longitude);
             latLngs.add(homeLatLng);
         } else {
             latLngs.add(mMarkers.get(mMarkers.size() - 1).getPosition());
         }
         latLngs.add(marker.getPosition());
-        for (LatLng latLng : latLngs) {
+        for (DJILatLng latLng : latLngs) {
             Log.i(TAG, "画线坐标: " + latLng);
         }
-        Polyline polyline = aMap.addPolyline((new PolylineOptions())
+        DJIPolyline polyline = djiMap.addPolyline((new DJIPolylineOptions())
                 .add(latLngs.get(0), latLngs.get(1))
                 .width(5)
-                .setDottedLine(true) //虚线
+                .setDashed(true) //虚线
                 .color(Color.BLUE));
         mMarkers.put(mMarkers.size(), marker);
         mPolylines.put(mPolylines.size(), polyline);
-        setSelectedMarker(marker);
-    }
-
-    private void setSelectedMarker(Marker marker) {
-        for (Integer integer : mMarkers.keySet()) {
-            if (mMarkers.get(integer).equals(marker)) {
-                mMarkers.get(integer).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-                selectedMarker = marker;
-            } else {
-                mMarkers.get(integer).setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
-            }
-        }
     }
 
     private void setResultToToast(final String string) {
@@ -2356,9 +2244,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     //根据map的value获取map的key
-    private Integer getKey(Map<Integer, Marker> map, Marker value) {
+    private Integer getKey(Map<Integer, DJIMarker> map, DJIMarker value) {
         Integer key = -1;
-        for (Map.Entry<Integer, Marker> entry : map.entrySet()) {
+        for (Map.Entry<Integer, DJIMarker> entry : map.entrySet()) {
             if (value.equals(entry.getValue())) {
                 key = entry.getKey();
             }

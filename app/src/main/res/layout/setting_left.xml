@@ -7,6 +7,7 @@
     android:orientation="horizontal">
 
     <LinearLayout
+        android:layout_marginTop="20dp"
         android:layout_width="55dp"
         android:layout_height="match_parent"
         android:layout_gravity="right"
@@ -104,6 +105,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:visibility="gone"
             android:orientation="vertical">
 
             <ImageButton
@@ -125,6 +127,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:visibility="gone"
             android:orientation="vertical">
 
             <ImageButton

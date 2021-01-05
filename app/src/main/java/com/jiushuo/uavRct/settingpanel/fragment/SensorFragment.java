@@ -202,7 +202,7 @@ public class SensorFragment extends Fragment {
         switchTopInfraredSensingSystem.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
-                DemoApplication.getAircraftInstance().getFlightController().getFlightAssistant().setUpwardAvoidanceEnabled(isChecked, new CommonCallbacks.CompletionCallback() {
+                DemoApplication.getAircraftInstance().getFlightController().getFlightAssistant().setUpwardVisionObstacleAvoidanceEnabled(isChecked, new CommonCallbacks.CompletionCallback() {
                     @Override
                     public void onResult(DJIError djiError) {
                         if (djiError != null) {
@@ -222,7 +222,7 @@ public class SensorFragment extends Fragment {
     }
 
     private void initSwitch3Value() {
-        DemoApplication.getAircraftInstance().getFlightController().getFlightAssistant().getUpwardAvoidanceEnabled(new CommonCallbacks.CompletionCallbackWith<Boolean>() {
+        DemoApplication.getAircraftInstance().getFlightController().getFlightAssistant().getUpwardVisionObstacleAvoidanceEnabled(new CommonCallbacks.CompletionCallbackWith<Boolean>() {
             @Override
             public void onSuccess(final Boolean aBoolean) {
                 getActivity().runOnUiThread(new Runnable() {

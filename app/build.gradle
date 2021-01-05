@@ -108,7 +108,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    implementation('com.dji:dji-sdk:4.12', {
+    implementation('com.dji:dji-sdk:4.13.1', {
         /**
          * Uncomment the "library-anti-distortion" if your app does not need Anti Distortion for Mavic 2 Pro and Mavic 2 Zoom.
          * Uncomment the "fly-safe-database" if you need database for release, or we will download it when DJISDKManager.getInstance().registerApp
@@ -118,9 +118,9 @@ dependencies {
         exclude module: 'library-anti-distortion'
         //exclude module: 'fly-safe-database'
     })
-    compileOnly 'com.dji:dji-sdk-provided:4.12'
+    compileOnly 'com.dji:dji-sdk-provided:4.13.1'
 
-    implementation 'com.dji:dji-uxsdk:4.12'
+    implementation 'com.dji:dji-uxsdk:4.13'
 
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.core:core:1.0.0'
@@ -135,12 +135,18 @@ dependencies {
 //    implementation project(':AMap2DMap_5.2.0_AMapSearch_6.9.2_AMapLocation_4.7.2_20191009')
     //3D地图so及jar
 //    implementation 'com.amap.api:3dmap:latest.integration'
-    implementation 'com.amap.api:3dmap:7.5.0'
+//    implementation 'com.amap.api:map2d:latest.integration'
+//    implementation 'com.amap.api:3dmap:7.5.0'
     //定位功能
 //    implementation 'com.amap.api:location:5.0.0'
-    implementation 'com.amap.api:location:latest.integration'
+//    implementation 'com.amap.api:location:latest.integration'
 /*    implementation project(':AMap_2DMap_V2.8.1_20160202')
     implementation project(':AMap_Search_V3.2.1_20160308')*/
+
+    implementation 'com.amap.api:3dmap:6.9.2'
+    //implementation 'com.amap.api:search:6.9.2'
+    implementation 'com.amap.api:location:4.7.0'
+
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.3'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.3'

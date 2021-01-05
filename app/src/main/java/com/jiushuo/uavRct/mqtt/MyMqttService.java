@@ -1147,12 +1147,14 @@ public class MyMqttService extends Service {
             }
             waypointList.add(waypoint);
         }
-        //调用接收到航点数据的回调，将数据传到MainActivity中的地图上显示
-        if (waypointDataCallback != null) {
-            waypointDataCallback.onDataReceived(waypointList);
-        }
+
         builder.waypointList(waypointList)
                 .waypointCount(waypointList.size());
+
+        //调用接收到航点数据的回调，将数据传到MainActivity中的地图上显示
+        if (waypointDataCallback != null) {
+            waypointDataCallback.onDataReceived(waypointList,builder.calculateTotalDistance(),(int)builder.calculateTotalTime().floatValue());
+        }
         return builder.build();
     }
 
@@ -1477,7 +1479,7 @@ public class MyMqttService extends Service {
     }
 
     public interface WaypointDataCallback {
-        void onDataReceived(List<Waypoint> waypointList);
+        void onDataReceived(List<Waypoint> waypointList,float distance, int time_s);
     }
 
     public interface ZoomCallback {

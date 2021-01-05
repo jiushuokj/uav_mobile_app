@@ -157,6 +157,11 @@ public class DemoApplication extends Application {
             }
 
             @Override
+            public void onProductChanged(BaseProduct baseProduct) {
+
+            }
+
+            @Override
             public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent oldComponent,
                                           BaseComponent newComponent) {
                 if (newComponent != null) {

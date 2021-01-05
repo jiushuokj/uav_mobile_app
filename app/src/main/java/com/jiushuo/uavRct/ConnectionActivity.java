@@ -191,6 +191,11 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
                         }
 
                         @Override
+                        public void onProductChanged(BaseProduct baseProduct) {
+
+                        }
+
+                        @Override
                         public void onComponentChange(BaseProduct.ComponentKey componentKey, BaseComponent oldComponent,
                                                       BaseComponent newComponent) {
 
