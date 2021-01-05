@@ -419,15 +419,15 @@
         android:layout_below="@id/signal_status_bar"
         android:visibility="gone" />
 
-    <!--右上角的Cetc按钮，弹出设置页面-->
+    <!--右上角的jskj按钮，弹出设置页面-->
     <Button
-        android:id="@+id/cetc_btn"
+        android:id="@+id/jskj_btn"
         android:layout_width="67dp"
         android:layout_height="37.5dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:alpha="0.8"
-        android:background="@drawable/cetc_right_top" />
+        android:background="@drawable/jskj_right_top" />
 
 
     <com.jiushuo.uavRct.view.ZoomView
@@ -529,7 +529,7 @@
         android:id="@+id/setting_panel"
         android:layout_width="660dp"
         android:layout_height="match_parent"
-        android:layout_below="@id/cetc_btn"
+        android:layout_below="@id/jskj_btn"
         android:layout_alignParentRight="true"
         android:layout_margin="2dp"
         android:alpha="0.9"

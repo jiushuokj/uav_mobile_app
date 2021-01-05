@@ -193,7 +193,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //    private int fetchFileListRetryCurrentTimes = 0;
 
     //设置面板的元素
-    private Button cetcButton;//用于控制设置面板显隐
+    private Button jskjButton;//用于控制设置面板显隐
     private LinearLayout settingPanel;
     private ViewPager mViewPager;
     private FragmentPagerAdapter mAdapter;
@@ -506,8 +506,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mTasksPanel = findViewById(R.id.tasks_panel);
         mZoomView = findViewById(R.id.zoom_view);
 
-        cetcButton = findViewById(R.id.cetc_btn);
-        cetcButton.setOnClickListener(this);
+        jskjButton = findViewById(R.id.jskj_btn);
+        jskjButton.setOnClickListener(this);
         settingPanel = findViewById(R.id.setting_panel);
         initSettingPanelView();
         initWaypointSettingUi();
@@ -589,7 +589,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 showTaskPanel();
                 break;
             }
-            case R.id.cetc_btn: {
+            case R.id.jskj_btn: {
                 showSettingPanel();
                 break;
             }

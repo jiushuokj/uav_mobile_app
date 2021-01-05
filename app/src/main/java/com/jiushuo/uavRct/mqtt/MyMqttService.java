@@ -17,11 +17,11 @@ import androidx.annotation.Nullable;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.cetc.mobile.request.ProtoWaypointMission;
-import com.cetc.mobile.state.ProtoBattery;
-import com.cetc.mobile.state.ProtoFlightController;
-import com.cetc.mobile.state.ProtoGimbal;
-import com.cetc.mobile.state.ProtoRTK;
+import com.jskj.mobile.request.ProtoWaypointMission;
+import com.jskj.mobile.state.ProtoBattery;
+import com.jskj.mobile.state.ProtoFlightController;
+import com.jskj.mobile.state.ProtoGimbal;
+import com.jskj.mobile.state.ProtoRTK;
 import com.jiushuo.uavRct.DemoApplication;
 import com.jiushuo.uavRct.entity.mqtt.AircraftInfoResponse;
 import com.jiushuo.uavRct.entity.mqtt.CameraInfoResponse;
@@ -95,7 +95,7 @@ import dji.thirdparty.io.reactivex.disposables.Disposable;
 import dji.thirdparty.io.reactivex.functions.Consumer;
 import dji.thirdparty.io.reactivex.schedulers.Schedulers;
 
-import static com.cetc.mobile.request.ProtoWaypointMission.WaypointMission.WaypointMissionHeadingMode.USING_WAYPOINT_HEADING;
+import static com.jskj.mobile.request.ProtoWaypointMission.WaypointMission.WaypointMissionHeadingMode.USING_WAYPOINT_HEADING;
 
 /**
  * Author       wildma

@@ -101,18 +101,4 @@
         android:text="@string/sdk_version"
         android:textSize="15dp" />
 
-    <!--<TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginStart="50dp"
-        android:text="Cetc-28 无人机"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/black_overlay"
-        android:textSize="20dp"
-        android:textStyle="bold"
-        android:layout_alignParentTop="true"
-         />-->
-
 </RelativeLayout>
