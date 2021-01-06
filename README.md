@@ -1,5 +1,5 @@
 ## 无人机安卓App
-* 使用大疆4.12版本的SDK
+* 使用大疆4.13.1版本的SDK
 * 本app基于大疆官方的[MediaManagerDemo](https://github.com/DJI-Mobile-SDK-Tutorials/Android-MediaManagerDemo)来构建
 * 主要实现了：
     1. 基于Mqtt来实现以一定频率发送无人机的状态信息，接受外部发送的指令（详情见[协议](http://192.168.8.10:8090/uavdev/protocol/blob/developer_zdy/RCT.md)，代码MyMqttService.java）
