@@ -1,6 +1,6 @@
 //topic:{SerialNumber}/Mobile/RequestUtil/WaypointMission
 syntax = "proto3";
-option java_package = "com.cetc.mobile.request";
+option java_package = "com.jskj.mobile.request";
 option java_outer_classname = "ProtoWaypointMission";
 message WaypointMission {
     string mission_name = 1;
