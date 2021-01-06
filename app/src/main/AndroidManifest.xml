@@ -45,7 +45,7 @@
     <application
         android:name=".MApplication"
         android:allowBackup="true"
-        android:icon="@drawable/cetc"
+        android:icon="@drawable/jskj"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -53,8 +53,10 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:replace="android:icon">
-        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
         <uses-library android:name="com.android.future.usb.accessory" />
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
 
         <meta-data
             android:name="com.dji.sdk.API_KEY"
