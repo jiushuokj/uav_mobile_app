@@ -18,3 +18,7 @@
     9. 实现相机的Zoom in/out功能部件（ZoomView.java）
 
 # 使用说明
+* 下载代码
+* 使用andriod stadio 进行编译
+* 将APP在DJI 遥控器上部署
+* 启动APP，填写大疆无人机用户名密码登录
