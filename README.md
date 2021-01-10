@@ -2,6 +2,8 @@
 ![avatar](https://github.com/jiushuokj/uav_mobile_app/blob/M210/fig1.png)
 ![avatar](https://github.com/jiushuokj/uav_mobile_app/blob/M210/fig2.png)
 
+# 系统架构
+  详见[https://github.com/jiushuokj/uav_doc]
 
 # 设计说明
 * 使用大疆4.12版本的SDK
