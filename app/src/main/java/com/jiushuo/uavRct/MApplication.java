@@ -3,6 +3,7 @@ package com.jiushuo.uavRct;
 import android.content.Context;
 
 import com.facebook.stetho.Stetho;
+import com.jiushuo.uavRct.utils.SysCrashHandler;
 import com.secneo.sdk.Helper;
 
 import org.litepal.LitePal;
@@ -19,6 +20,8 @@ public class MApplication extends BaseApplication {
             demoApplication = new DemoApplication();
             demoApplication.setContext(this);
         }
+
+
     }
 
     @Override
@@ -29,6 +32,7 @@ public class MApplication extends BaseApplication {
         LitePal.initialize(this);
         Stetho.initializeWithDefaults(this);
         demoApplication.onCreate();
+//        Thread.setDefaultUncaughtExceptionHandler(new SysCrashHandler());
     }
 
 }

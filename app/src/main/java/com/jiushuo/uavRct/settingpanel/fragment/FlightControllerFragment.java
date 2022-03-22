@@ -79,7 +79,7 @@ public class FlightControllerFragment extends Fragment {
         initEditTextMaxDistanceEvents();
         addNextImgBtnExtendIoOptionsEvent();
         addBtnExpandIoSettingReturnEvent();
-        addSwitchPowerSupplyPortEvent();
+//        addSwitchPowerSupplyPortEvent();
     }
 
     private void addBtnExpandIoSettingReturnEvent() {
@@ -376,8 +376,7 @@ public class FlightControllerFragment extends Fragment {
         getMaxFlightHeight();
         getMaxFlightRadiusLimitationEnabled();
         getMaxFlightRadius();
-        initSwitchPowerSupplyPortValue();
-
+//        initSwitchPowerSupplyPortValue();
     }
 
     private void initSwitchPowerSupplyPortValue() {

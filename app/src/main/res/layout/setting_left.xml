@@ -7,7 +7,6 @@
     android:orientation="horizontal">
 
     <LinearLayout
-        android:layout_marginTop="20dp"
         android:layout_width="55dp"
         android:layout_height="match_parent"
         android:layout_gravity="right"
@@ -20,13 +19,14 @@
             android:layout_weight="1"
             android:id="@+id/id_tab_flight_controller"
             android:gravity="center"
+            android:paddingBottom="10dp"
             android:orientation="vertical">
 
             <ImageButton
                 android:id="@+id/id_tab_flight_controller_img"
                 android:clickable="false"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:src="@drawable/flight_controller_2"
                 android:background="#00000000"/>
             <TextView
@@ -42,13 +42,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:paddingBottom="10dp"
             android:orientation="vertical">
 
             <ImageButton
                 android:id="@+id/id_tab_sensor_img"
                 android:clickable="false"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:src="@drawable/sensor_1"
                 android:background="#00000000"/>
             <TextView
@@ -63,13 +64,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:paddingBottom="10dp"
             android:orientation="vertical">
 
             <ImageButton
                 android:id="@+id/id_tab_remote_controller_img"
                 android:clickable="false"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:src="@drawable/remote_controller_1"
                 android:background="#00000000"/>
             <TextView
@@ -84,13 +86,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:paddingBottom="10dp"
             android:orientation="vertical">
 
             <ImageButton
                 android:id="@+id/id_image_trans_img"
                 android:clickable="false"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:src="@drawable/image_tans_1"
                 android:background="#00000000"/>
             <TextView
@@ -150,13 +153,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:paddingBottom="10dp"
             android:orientation="vertical">
 
             <ImageButton
                 android:id="@+id/id_general_img"
                 android:clickable="false"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:src="@drawable/general_1"
                 android:background="#00000000"/>
             <TextView

@@ -72,7 +72,8 @@
             android:id="@+id/cetc_btn"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="5dp"
+            android:alpha="0.8"
             android:background="@drawable/ic_setting" />
 
     </LinearLayout>
@@ -81,9 +82,18 @@
     <dji.ux.widget.RemainingFlightTimeWidget
         android:id="@+id/RemainingFlightTimeWidget"
         android:layout_width="match_parent"
-        android:layout_height="15dp"
+        android:layout_height="20dp"
         android:layout_below="@id/signal_status_bar"
-        android:background="@color/background_blue"  />
+        android:layout_marginTop="0dp" />
+
+    <com.jiushuo.uavRct.view.ZoomView
+        android:id="@+id/zoom_view"
+        android:layout_width="35dp"
+        android:layout_height="150dp"
+        android:layout_alignTop="@id/camera_status_bar"
+        android:layout_toLeftOf="@id/camera_capture_layout"
+        android:background="@color/black_light"
+        />
 
     <!--交换地图和主摄像头按钮-->
     <Button
@@ -92,6 +102,7 @@
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:visibility="gone"
         android:background="@color/transparent" />
 
     <!--主摄像头-->
@@ -100,15 +111,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/Compass"
+        android:visibility="gone"
         android:layout_below="@id/RemainingFlightTimeWidget"
         android:background="@color/light_gray">
 
-        <dji.ux.widget.FPVWidget
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            custom:sourceCameraNameVisibility="false"
-            custom:videoSource="primary" />
 
         <dji.ux.widget.RadarWidget
             android:id="@+id/radar_widget"
@@ -117,12 +123,7 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true" />
 
-        <dji.ux.widget.FPVOverlayWidget
-            android:id="@+id/fpv_overlay_widget"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            custom:overlayVideoSource="primary" >
-        </dji.ux.widget.FPVOverlayWidget>
+
     </RelativeLayout>
 
     <!--    <com.dji.mediaManagerDemo.utils.VideoFeedView
@@ -142,13 +143,7 @@
         android:layout_margin="5dp"
         android:visibility="gone">
 
-        <dji.ux.widget.FPVWidget
-            android:id="@+id/secondary_fpv_widget"
-            android:layout_width="200dp"
-            android:layout_height="180dp"
-            android:layout_centerHorizontal="true"
-            custom:sourceCameraNameVisibility="true"
-            custom:videoSource="primary" />
+
     </RelativeLayout>
     <!--fpv摄像头放大按钮-->
     <Button
@@ -189,6 +184,8 @@
 <!--            android:layout_height="match_parent" />-->
     </RelativeLayout>
 
+
+
     <!--照相机相关参数栏-->
     <LinearLayout
         android:id="@+id/camera_status_bar"
@@ -208,17 +205,15 @@
             android:layout_width="30dp"
             android:layout_height="30dp" />
 
-        <dji.ux.widget.FocusModeWidget
-            android:layout_width="30dp"
-            android:layout_height="30dp" />
+
 
         <dji.ux.widget.config.CameraConfigISOAndEIWidget
-            android:layout_width="60dp"
-            android:layout_height="30dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:background="@color/dark_gray" />
 
         <dji.ux.widget.config.CameraConfigShutterWidget
-            android:layout_width="60dp"
+            android:layout_width="30dp"
             android:layout_height="30dp" />
 
         <dji.ux.widget.config.CameraConfigApertureWidget
@@ -239,7 +234,12 @@
 
     </LinearLayout>
 
-
+    <dji.ux.widget.ManualFocusWidget
+        android:layout_width="50dp"
+        android:layout_height="160dp"
+        android:layout_alignTop="@id/camera_status_bar"
+        android:layout_toLeftOf="@id/camera_capture_layout"
+        tools:ignore="RtlHardcoded" />
 
     <!-- 左上角的夜航灯-->
     <LinearLayout
@@ -339,25 +339,12 @@
         android:layout_height="0dp"
         android:layout_above="@+id/Compass"
         android:layout_below="@id/RemainingFlightTimeWidget"
-        android:layout_toLeftOf="@id/ManualFocusWidget"
+        android:layout_toLeftOf="@id/camera_capture_layout"
         android:background="@color/gray"
         android:gravity="center"
-        android:visibility="invisible"/>
+        android:visibility="invisible"></dji.ux.panel.CameraSettingExposurePanel>
 
-    <!--摄像机高级设置面板-->
-    <dji.ux.panel.CameraSettingAdvancedPanel
-        android:id="@+id/CameraAdvancedSetting"
-        android:layout_width="200dp"
-        android:layout_height="0dp"
-        android:layout_below="@id/RemainingFlightTimeWidget"
-        android:layout_above="@+id/Compass"
-        android:layout_marginTop="5dp"
-        android:layout_toLeftOf="@+id/ManualFocusWidget"
-        android:background="@color/gray"
-        android:gravity="center"
-        android:visibility="gone" />
 
-<!--    android:layout_toLeftOf="@id/camera_capture_layout"-->
 
     <LinearLayout
         android:id="@+id/waypoint_locate_layout"
@@ -411,20 +398,9 @@
     </LinearLayout>
 
 
-
-    <com.jiushuo.uavRct.view.ZoomView
-        android:id="@+id/zoom_view"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_alignTop="@id/camera_status_bar"
-        android:layout_toLeftOf="@id/camera_capture_layout"
-        android:layout_above="@+id/Compass"
-        android:background="@color/black_light"
-        />
-
     <dji.ux.widget.controls.CameraControlsWidget
         android:id="@+id/CameraCapturePanel"
-        android:layout_width="50dp"
+        android:layout_width="40dp"
         android:layout_height="0dp"
         android:layout_above="@+id/Compass"
         android:layout_below="@id/camera_capture_layout"
@@ -619,10 +595,12 @@
     <LinearLayout
         android:id="@+id/waypoint_config_panel"
         android:layout_width="250dp"
-        android:layout_height="0dp"
-        android:layout_below="@id/RemainingFlightTimeWidget"
-        android:layout_above="@+id/Compass"
-        android:layout_margin="3dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/camera_status_bar"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="3dp"
+        android:layout_marginBottom="3dp"
         android:layout_toLeftOf="@id/camera_capture_layout"
         android:alpha="0.75"
         android:background="@color/gray_light"
@@ -817,22 +795,5 @@
         </LinearLayout>
     </LinearLayout>
 
-    <dji.ux.widget.ManualFocusWidget
-        android:id="@+id/ManualFocusWidget"
-        android:layout_width="50dp"
-        android:layout_height="160dp"
-        android:layout_below="@+id/RemainingFlightTimeWidget"
-        android:layout_toLeftOf="@id/camera_capture_layout"
-        android:visibility="visible"
-        android:background="@color/white"
-        tools:ignore="RtlHardcoded" />
-
-    <!--起飞前检查面板-->
-    <dji.ux.panel.PreFlightCheckListPanel
-        android:id="@+id/PreflightCheckView"
-        android:layout_width="600dp"
-        android:layout_height="400dp"
-        android:layout_below="@id/RemainingFlightTimeWidget"
-        android:visibility="gone" />
 
 </RelativeLayout>

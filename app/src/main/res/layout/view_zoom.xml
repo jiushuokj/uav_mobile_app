@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical" android:layout_width="50dp"
     android:layout_height="match_parent">
     <Button
         android:id="@+id/btn_zoom_in"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="+"
         android:textSize="40sp"
@@ -16,14 +16,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="1.0X"
-        android:textSize="20sp"
+        android:text="556mm"
         android:layout_weight="1"
         android:background="@color/transparent"
         android:textColor="@color/colorWhite"/>
     <Button
         android:id="@+id/btn_zoom_out"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="-"
         android:textSize="50sp"
@@ -32,10 +31,9 @@
         android:textColor="@color/colorWhite"/>
     <Button
         android:id="@+id/btn_zoom_reset"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="重置"
-        android:textSize="20sp"
         android:layout_weight="1"
         android:background="@color/transparent"
         android:textColor="@color/colorWhite"/>

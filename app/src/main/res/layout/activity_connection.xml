@@ -30,6 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
+        android:visibility="gone"
         android:text="@string/product_information"
         android:textColor="@android:color/black"
         android:textSize="25dp"
@@ -41,6 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="85dp"
+        android:visibility="gone"
         android:gravity="center"
         android:text="无可用信息"
         android:textSize="15dp" />
@@ -51,7 +53,8 @@
         android:layout_width="150dp"
         android:layout_height="55dp"
         android:layout_marginStart="60dp"
-        android:layout_marginTop="630dp"
+        android:layout_marginTop="230dp"
+        android:visibility="gone"
         android:digits="0123456789.\n"
         android:hint="Bridge App IP"
         android:imeOptions="actionDone"
@@ -68,24 +71,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="300dp"
+        android:layout_marginTop="220dp"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/btn_open"
-            android:layout_width="150dp"
-            android:layout_height="55dp"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
             android:layout_margin="25dp"
             android:background="@drawable/round_btn"
-            android:text="进入"
+            android:text="启动"
             android:textColor="@color/colorWhite"
-            android:textSize="20dp" />
+            android:textSize="18dp" />
 
         <Button
             android:id="@+id/btn_exit"
             android:layout_width="150dp"
             android:layout_height="55dp"
             android:layout_margin="25dp"
+            android:visibility="gone"
             android:background="@drawable/round_btn"
             android:text="退出"
             android:textColor="@color/colorWhite"
@@ -98,9 +102,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="660dp"
-        android:text="@string/sdk_version"
-        android:textSize="15dp" />
+        android:layout_marginTop="320dp"
+        android:text="@string/copy_right"
+        android:textSize="12sp" />
 
     <!--<TextView
         android:id="@+id/textView"
@@ -108,7 +112,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:layout_marginStart="50dp"
-        android:text="jskj-28 无人机"
+        android:text="Cetc-28 无人机"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/black_overlay"
         android:textSize="20dp"

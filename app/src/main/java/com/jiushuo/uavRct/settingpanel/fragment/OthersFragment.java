@@ -88,7 +88,7 @@ public class OthersFragment extends Fragment {
                     send_size = leftsize;
                 }
                 byte[] tosends = Arrays.copyOfRange(videoBuffer, size - leftsize, size - leftsize + send_size );
-                DatagramPacket packet = new DatagramPacket(tosends , send_size, serverAddr, 33330);
+                DatagramPacket packet = new DatagramPacket(tosends , send_size, serverAddr, 34330);
                 try {
                     udp_sock.send(packet);
 //                        Log.d(TAG,"send frame....");
@@ -483,7 +483,7 @@ public class OthersFragment extends Fragment {
     private void initEditTextFtpUrl() {
         SharedPreferences ftpPref = mainActivity.getSharedPreferences("ftp",
                 MODE_PRIVATE);
-        ftpUrl = ftpPref.getString("ftpUrl", "192.168.1.1:21");
+        ftpUrl = ftpPref.getString("ftpUrl", "192.168.8.127:21");
         mainActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -684,7 +684,7 @@ public class OthersFragment extends Fragment {
     private void initEditTextRtmpUrl() {
         SharedPreferences rtmpPref = mainActivity.getSharedPreferences("rtmp",
                 MODE_PRIVATE);
-        rtmpUrl = rtmpPref.getString("rtmpUrl", "192.168.1.1:1935");
+        rtmpUrl = rtmpPref.getString("rtmpUrl", "192.168.8.127:1935");
         mainActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -764,7 +764,7 @@ public class OthersFragment extends Fragment {
     private void initEditTextMqttUrl() {
         SharedPreferences mqttPref = mainActivity.getSharedPreferences("mqtt",
                 MODE_PRIVATE);
-        mqttUrl = mqttPref.getString("mqttUrl", "192.168.1.1:1883");
+        mqttUrl = mqttPref.getString("mqttUrl", "192.168.8.127:1883");
         mainActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

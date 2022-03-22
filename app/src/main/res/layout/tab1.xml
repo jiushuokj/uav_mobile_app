@@ -209,7 +209,9 @@
 
                 <View style="@style/setting_item_separate_line" />
 
-                <RelativeLayout style="@style/setting_item_common_layout">
+                <RelativeLayout
+                    style="@style/setting_item_common_layout"
+                    android:visibility="gone">
 
                     <TextView
                         style="@style/setting_item_main_txt"
@@ -243,7 +245,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:layout_margin="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
                 android:text="扩展IO配置"
                 android:textColor="@color/white"
                 android:textSize="20sp"

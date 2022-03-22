@@ -596,6 +596,11 @@ public class PlaybackActivity extends BaseActivity implements View.OnClickListen
             }
 
             @Override
+            public void onRealtimeDataUpdate(byte[] bytes, long l, boolean b) {
+
+            }
+
+            @Override
             public void onStart() {
                 currentProgress = -1;
                 ShowDownloadProgressDialog();

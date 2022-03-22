@@ -8,6 +8,7 @@
     <string name="model_not_available">Model Not Available</string>
     <string name="push_info">Push Info</string>
     <string name="sdk_version">SDK Version: %1$s</string>
+    <string name="copy_right">Copyright ©2020-2022 JIUSHUO Smart, All Rights Reserved.</string>
 
     <string name="connection_only_rc">状态: 只有遥控器连接</string>
     <string name="component_listview_live_stream">Live Stream</string>

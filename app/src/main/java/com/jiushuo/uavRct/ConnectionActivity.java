@@ -1,6 +1,7 @@
 package com.jiushuo.uavRct;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,8 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -26,7 +29,8 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.jiushuo.uavRct.R;
+import com.jiushuo.uavRct.entity.CameraTypeEnum;
+import com.jiushuo.uavRct.utils.Common;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,26 +78,56 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
             Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_ADMIN,
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.READ_PHONE_STATE,
-//            Manifest.permission.CHANGE_CONFIGURATION,//
-//            Manifest.permission.SYSTEM_ALERT_WINDOW,//
-//            Manifest.permission.WRITE_SETTINGS,//
-//            Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS,//
-            Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
-            Manifest.permission_group.PHONE
+
     };
     private List<String> missingPermission = new ArrayList<>();
+
+    /**
+     * 授权是否成功
+     */
+    private boolean isPermissionSucc = false;
+    /**
+     * 登录是否成功
+     */
+    private boolean isLoginSucc = false;
+    /**
+     * 注册是否成功
+     */
+    private boolean isRegisterSucc = false;
+    /**
+     * 连接是否成功
+     */
+    private boolean isConnectionSucc = false;
+
     private AtomicBoolean isRegistrationInProgress = new AtomicBoolean(false);
     private static final int REQUEST_PERMISSION_CODE = 12345;
     private DJIKey firmwareKey;
     private KeyListener firmwareVersionUpdater;
     private boolean hasStartedFirmVersionListener = false;
 
+    private static Activity mActivity;
+    private static final int LOGIN_SUCC = 0;
+    private Handler mHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message message) {
+            switch (message.what) {
+                case LOGIN_SUCC:
+                    Intent intent = new Intent(mActivity, MainActivity.class);
+                    mActivity.startActivity(intent);
+                    mActivity.finish();
+                    break;
+            }
+            return false;
+        }
+    });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mActivity = this;
         checkAndRequestPermissions();
+//        loginAccount();
         setContentView(R.layout.activity_connection);
         initUI();
 
@@ -119,10 +153,13 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
         }
         // RequestUtil for missing permissions
         if (!missingPermission.isEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Log.e(TAG, "权限不足，申请全选: ");
+            Log.e(TAG, "权限不足，申请权限: ");
             ActivityCompat.requestPermissions(ConnectionActivity.this,
                     missingPermission.toArray(new String[missingPermission.size()]),
                     REQUEST_PERMISSION_CODE);
+        } else {
+            isPermissionSucc = true;
+            startSDKRegistration();
         }
 
     }
@@ -141,6 +178,18 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
             for (int i = grantResults.length - 1; i >= 0; i--) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                     missingPermission.remove(permissions[i]);
+                } else {
+                    switch (permissions[i]) {
+                        case Manifest.permission.ACCESS_FINE_LOCATION:
+                            showToast("位置信息获取授权失败");
+                            break;
+                        case Manifest.permission.READ_EXTERNAL_STORAGE:
+                            showToast("文件读取授权失败");
+                            break;
+                        case Manifest.permission.READ_PHONE_STATE:
+                            showToast("电话管理授权失败");
+                            break;
+                    }
                 }
             }
         }
@@ -148,20 +197,22 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
         if (missingPermission.isEmpty()) {
             Log.e(TAG, "onRequestPermissionsResult:动态申请权限之后," + missingPermission.size());
             startSDKRegistration();
+            isPermissionSucc = true;
         } else {
             for (String s : missingPermission) {
                 Log.e(TAG, "onRequestPermissionsResult:动态申请权限之后," + s);
             }
-            showToast("Missing permissions!!!");
+//            showToast("Missing permissions!!!");
         }
     }
 
     private void startSDKRegistration() {
+
         if (isRegistrationInProgress.compareAndSet(false, true)) {
             AsyncTask.execute(new Runnable() {
                 @Override
                 public void run() {
-                    showToast("正在注册, 请稍等...");
+//                    showToast("正在注册, 请稍等...");
                     DJISDKManager.getInstance().registerApp(getApplicationContext(), new DJISDKManager.SDKManagerCallback() {
                         @Override
                         public void onRegister(DJIError djiError) {
@@ -169,7 +220,8 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
                                 DJILog.e("App registration", DJISDKError.REGISTRATION_SUCCESS.getDescription());
                                 DJISDKManager.getInstance().startConnectionToProduct();
                                 showToast("注册成功");
-                                refreshSDKRelativeUIRunOnUIThread();
+                                isRegisterSucc = true;
+//                                loginAccount();
                             } else {
                                 showToast("注册SDK失败，请检查网络状态");
                             }
@@ -180,14 +232,17 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
                         public void onProductDisconnect() {
                             Log.d(TAG, "onProductDisconnect");
                             showToast("无人机断开连接");
-                            refreshSDKRelativeUIRunOnUIThread();
                         }
 
                         @Override
                         public void onProductConnect(BaseProduct baseProduct) {
-                            Log.d(TAG, String.format("onProductConnect newProduct:%s", baseProduct));
-                            showToast("无人机已连接");
-                            refreshSDKRelativeUIRunOnUIThread();
+                            if (baseProduct.isConnected()) {
+                                Log.d(TAG, String.format("onProductConnect newProduct:%s", baseProduct));
+//                                showToast("无人机已连接");
+                                isConnectionSucc = true;
+//                                mHandler.sendEmptyMessage(LOGIN_SUCC);
+                                updateTitleBar();
+                            }
                         }
 
                         @Override
@@ -244,9 +299,9 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
     public void onResume() {
         Log.e(TAG, "onResume");
         super.onResume();
-        startSDKRegistration();
-        updateTitleBar();
-        refreshSDKRelativeUI();
+//        startSDKRegistration();
+//        updateTitleBar();
+//        refreshSDKRelativeUI();
     }
 
     @Override
@@ -268,10 +323,12 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         Log.e(TAG, "onDestroy");
         unregisterReceiver(mReceiver);
         removeFirmwareVersionListener();
-        super.onDestroy();
+        mHandler = null;
+
     }
 
     private void initUI() {
@@ -279,9 +336,6 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
         mTextConnectionStatus = (TextView) findViewById(R.id.text_connection_status);
         mTextModelAvailable = (TextView) findViewById(R.id.text_model_available);
         mTextProduct = (TextView) findViewById(R.id.text_product_info);
-
-        mVersionTv = (TextView) findViewById(R.id.textView_sdk_version);
-        mVersionTv.setText(getResources().getString(R.string.sdk_version, DJISDKManager.getInstance().getSDKVersion()));
 
         mBridgeModeEditText = findViewById(R.id.edittext_bridge_ip);
         mBridgeModeEditText.setText("192.168.8.104");
@@ -338,7 +392,7 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
 
         mBtnOpen = (Button) findViewById(R.id.btn_open);
         mBtnOpen.setOnClickListener(this);
-        mBtnOpen.setEnabled(false);
+
 
         mBtnExit = findViewById(R.id.btn_exit);
         mBtnExit.setOnClickListener(this);
@@ -359,7 +413,8 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            refreshSDKRelativeUI();
+//            refreshSDKRelativeUI();
+//            showToast("广播回调");
         }
     };
 
@@ -370,6 +425,12 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
             if (product.isConnected()) {
                 //The product is connected
                 showToast(DemoApplication.getProductInstance().getModel() + " 连接成功");
+                String displayName = DemoApplication.getProductInstance().getCamera().getDisplayName();
+                if (displayName.equals("Zenmuse H20T")) {
+                    Common.CAMERA_TYPE = CameraTypeEnum.H20T;
+                } else {
+                    Common.CAMERA_TYPE = CameraTypeEnum.DEFAULT;
+                }
                 ret = true;
             } else {
                 if (product instanceof Aircraft) {
@@ -412,8 +473,16 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
         switch (v.getId()) {
 
             case R.id.btn_open: {
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
+                if (!isPermissionSucc) {
+                    checkAndRequestPermissions();
+                } else if (!isRegisterSucc) {
+                    showToast("未注册成功");
+                } else if (!isConnectionSucc) {
+                    showToast("无人机未连接");
+                } else {
+                    mHandler.sendEmptyMessage(LOGIN_SUCC);
+                }
+
                 break;
             }
 
@@ -461,6 +530,7 @@ public class ConnectionActivity extends BaseActivity implements View.OnClickList
                     public void onSuccess(final UserAccountState userAccountState) {
                         Log.e(TAG, "Login Success");
                         showToast("登录成功!");
+                        isLoginSucc = true;
                     }
 
                     @Override

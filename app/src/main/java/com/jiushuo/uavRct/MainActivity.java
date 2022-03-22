@@ -1,5 +1,9 @@
 package com.jiushuo.uavRct;
 
+import static dji.common.camera.CameraVideoStreamSource.INFRARED_THERMAL;
+import static dji.common.camera.CameraVideoStreamSource.WIDE;
+import static dji.common.camera.CameraVideoStreamSource.ZOOM;
+
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -9,7 +13,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-//import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -35,28 +38,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-//import com.amap.api.maps.AMap;
-//import com.amap.api.maps.AMapUtils;
-//import com.amap.api.maps.CameraUpdate;
-//import com.amap.api.maps.CameraUpdateFactory;
-//import com.amap.api.maps.LocationSource;
-//import com.amap.api.maps.MapView;
-//import com.amap.api.maps.model.BitmapDescriptorFactory;
-//import com.amap.api.maps.model.LatLng;
-//import com.amap.api.maps.model.Marker;
-//import com.amap.api.maps.model.MarkerOptions;
-//import com.amap.api.maps.model.MyLocationStyle;
-//import com.amap.api.maps.model.Polyline;
-//import com.amap.api.maps.model.PolylineOptions;
-import com.dji.mapkit.core.camera.DJICameraUpdate;
 import com.dji.mapkit.core.maps.DJIMap;
-import com.dji.mapkit.core.models.DJIBitmapDescriptorFactory;
 import com.dji.mapkit.core.models.DJILatLng;
 import com.dji.mapkit.core.models.annotations.DJIMarker;
 import com.dji.mapkit.core.models.annotations.DJIMarkerOptions;
 import com.dji.mapkit.core.models.annotations.DJIPolyline;
 import com.dji.mapkit.core.models.annotations.DJIPolylineOptions;
-import com.jiushuo.uavRct.R;
 import com.jiushuo.uavRct.entity.sqlite.Action;
 import com.jiushuo.uavRct.entity.sqlite.Mission;
 import com.jiushuo.uavRct.entity.sqlite.WayPoint;
@@ -68,7 +55,6 @@ import com.jiushuo.uavRct.settingpanel.fragment.ImageTransFragment;
 import com.jiushuo.uavRct.settingpanel.fragment.OthersFragment;
 import com.jiushuo.uavRct.settingpanel.fragment.RemoteControllerFragment;
 import com.jiushuo.uavRct.settingpanel.fragment.SensorFragment;
-import com.jiushuo.uavRct.utils.CoordinateTransUtils;
 import com.jiushuo.uavRct.utils.DoubleComparer;
 import com.jiushuo.uavRct.utils.Helper;
 import com.jiushuo.uavRct.utils.ToastUtils;
@@ -81,7 +67,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -89,9 +74,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import dji.common.airlink.PhysicalSource;
+import dji.common.camera.CameraVideoStreamSource;
 import dji.common.camera.SettingsDefinitions;
 import dji.common.error.DJICameraError;
 import dji.common.error.DJIError;
@@ -126,17 +111,10 @@ import dji.thirdparty.io.reactivex.Observable;
 import dji.thirdparty.io.reactivex.ObservableEmitter;
 import dji.thirdparty.io.reactivex.ObservableOnSubscribe;
 import dji.thirdparty.io.reactivex.Observer;
-import dji.thirdparty.io.reactivex.android.schedulers.AndroidSchedulers;
 import dji.thirdparty.io.reactivex.disposables.Disposable;
-import dji.thirdparty.io.reactivex.functions.Consumer;
 import dji.thirdparty.io.reactivex.schedulers.Schedulers;
 import dji.ux.widget.FPVOverlayWidget;
 import dji.ux.widget.MapWidget;
-
-import static com.dji.mapkit.core.maps.DJIMap.MAP_TYPE_NORMAL;
-import static dji.common.camera.CameraVideoStreamSource.INFRARED_THERMAL;
-import static dji.common.camera.CameraVideoStreamSource.WIDE;
-import static dji.common.camera.CameraVideoStreamSource.ZOOM;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener, DJIMap.OnMapClickListener {
     private static final String TAG = "主活动";
@@ -153,7 +131,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private View cameraSettingAdvancedPanel, cameraSettingExposurePanel;
     private Button mLiveStreamSettingBtn, mTasksPanelButton, mExitAppButton;
     private LinearLayout mTasksPanel;
-//    private ZoomView mZoomView;
+    private ZoomView mZoomView;
     private boolean isFpvScaleUp, isMapScaleUp;
     private RelativeLayout mainCameraLayout, mainMapLayout;
     private Spinner mapSpinner;
@@ -164,11 +142,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private FlightController mFlightController;
     private AirLink mAirLink;
     private int mVideoSrcIndex = 0;
+    private String[] mVideoSrcText = new String[]{"广角", "变焦", "红外", "FPV"};
     private Camera mcamera;
-    private double droneLocationLat = DemoApplication.getAircraftInstance().getFlightController().getState().getAircraftLocation().getLatitude();
-    private double droneLocationLng = DemoApplication.getAircraftInstance().getFlightController().getState().getAircraftLocation().getLongitude();
-    private double droneLocationLatForTrace = DemoApplication.getAircraftInstance().getFlightController().getState().getAircraftLocation().getLatitude();
-    private double droneLocationLngForTrace = DemoApplication.getAircraftInstance().getFlightController().getState().getAircraftLocation().getLongitude();
+    private double droneLocationLat;
+    private double droneLocationLng;
     private int droneHeadDirection;
     private final Map<Integer, DJIMarker> mMarkers = new ConcurrentHashMap<Integer, DJIMarker>();//地图上的标记点
     private final Map<Integer, DJIPolyline> mPolylines = new ConcurrentHashMap<Integer, DJIPolyline>();//标记点之间的线
@@ -197,7 +174,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private int lastIndex;
     private List<MediaFile> mediaFileList = new ArrayList<>();
     public FTPClientFunctions ftpClientFunctions = new FTPClientFunctions();
-    private String ftpHost = "192.168.8.103";
+    private String ftpHost = "192.168.8.127";
     private String ftpUsr = "admin";
     private String ftpPsd = "123";
     private String ftpPort = "21";
@@ -213,7 +190,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private ArrayList<MediaFile> fileToDelete = new ArrayList<MediaFile>();
 
     //设置面板的元素
-    private Button jskjButton;//用于控制设置面板显隐
+    private Button cetcButton;//用于控制设置面板显隐
     private LinearLayout settingPanel;
     private ViewPager mViewPager;
     private FragmentPagerAdapter mAdapter;
@@ -273,24 +250,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     updateWaypointMissionInfo(waypointList.size(),distance,time_s);
                 }
             });
-            //mZoomView.setMqttBinder(mqttBinder);
+            mZoomView.setMqttBinder(mqttBinder);
             mqttBinder.getMyMqttService().setZoomCallback(new MyMqttService.ZoomCallback() {
                 @Override
                 public void onZoomInReceived() {
                     Log.i(TAG, "onZoomInReceived: 接收到远程发送ZoomIn指令");
-                    //mZoomView.zoomIn();
+                    mZoomView.zoomIn();
                 }
 
                 @Override
                 public void onZoomOutReceived() {
                     Log.i(TAG, "onZoomOutReceived: 接收到远程发送ZoomOut指令");
-                   // mZoomView.zoomOut();
+                    mZoomView.zoomOut();
                 }
 
                 @Override
                 public void onZoomResetReceived() {
                     Log.i(TAG, "onZoomResetReceived: 接收到远程发送ZoomReset指令");
-                    //mZoomView.zoomReset();
+                    mZoomView.zoomReset();
                 }
             });
             mqttBinder.getMyMqttService().setGimbalStateCallback(new MyMqttService.GimbalStateCallback() {
@@ -316,16 +293,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         RegisterConnectionChangeBroadcastReceiver();
-        initAirCraftParams();
-        Log.w(TAG, "ltz initAirCraftParams");
         initUI();
-        Log.w(TAG, "ltz initUI");
+        initAirCraftParams();
         initMap(savedInstanceState);
-        Log.w(TAG, "ltz initMap");
         startMyMqttService();
-        Log.w(TAG, "ltz startMyMqttService");
         initFtpServerConnection(true);
-        Log.w(TAG, "ltz initFtpServerConnection");
     }
 
     public void initFtpServerConnection(boolean isConnectionTest) {
@@ -500,10 +472,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mExitAppButton.setOnClickListener(this);
 
         mTasksPanel = findViewById(R.id.tasks_panel);
-        //mZoomView = findViewById(R.id.zoom_view);
+        mZoomView = findViewById(R.id.zoom_view);
 
-        jskjButton = findViewById(R.id.jskj_btn);
-        jskjButton.setOnClickListener(this);
+        cetcButton = findViewById(R.id.cetc_btn);
+        cetcButton.setOnClickListener(this);
         settingPanel = findViewById(R.id.setting_panel);
         initSettingPanelView();
         initWaypointSettingUi();
@@ -519,6 +491,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     if(mVideoSrcIndex == 4){
                         mVideoSrcIndex = 0;
                     }
+                    if (mVideoSrcIndex == 1) {
+                        mZoomView.setVisibility(View.VISIBLE);
+                    } else {
+                        mZoomView.setVisibility(View.GONE);
+                    }
                     switch(mVideoSrcIndex){
                         case 0:
                             mAirLink.getOcuSyncLink().assignSourceToPrimaryChannel(PhysicalSource.LEFT_CAM,PhysicalSource.FPV_CAM, new CommonCallbacks.CompletionCallback() {
@@ -533,7 +510,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                                                     runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            videoSrcName.setText("广角");
+                                                            videoSrcName.setText(mVideoSrcText[mVideoSrcIndex]);
                                                         }
                                                     });
                                                 } else {
@@ -556,7 +533,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                videoSrcName.setText("变焦");
+                                                videoSrcName.setText(mVideoSrcText[mVideoSrcIndex]);
                                             }
                                         });
                                     } else {
@@ -574,7 +551,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                videoSrcName.setText("红外");
+                                                videoSrcName.setText(mVideoSrcText[mVideoSrcIndex]);
                                             }
                                         });
                                     } else {
@@ -592,7 +569,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                videoSrcName.setText("FPV");
+                                                videoSrcName.setText(mVideoSrcText[mVideoSrcIndex]);
                                             }
                                         });
                                     } else {
@@ -678,7 +655,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 showTaskPanel();
                 break;
             }
-            case R.id.jskj_btn: {
+            case R.id.cetc_btn: {
                 showSettingPanel();
                 break;
             }
@@ -728,8 +705,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mFragments.add(new SensorFragment());
         mFragments.add(new RemoteControllerFragment());
         mFragments.add(new ImageTransFragment());
-        mFragments.add(new BatteryFragment());
-        mFragments.add(new GimbalFragment());
+//        mFragments.add(new BatteryFragment());
+//        mFragments.add(new GimbalFragment());
         mFragments.add(new OthersFragment());
 
         //初始化适配器
@@ -852,13 +829,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             case 3:
                 mImgImageTrans.setImageResource(R.drawable.image_tans_2);
                 break;
+//            case 4:
+//                mImgBattery.setImageResource(R.drawable.battery_2);
+//                break;
+//            case 5:
+//                mImgGimbal.setImageResource(R.drawable.gimbal2);
+//                break;
             case 4:
-                mImgBattery.setImageResource(R.drawable.battery_2);
-                break;
-            case 5:
-                mImgGimbal.setImageResource(R.drawable.gimbal2);
-                break;
-            case 6:
                 mImgGeneral.setImageResource(R.drawable.general_2);
                 break;
         }
@@ -1424,6 +1401,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             }
 
             @Override
+            public void onRealtimeDataUpdate(byte[] bytes, long l, boolean b) {
+
+            }
+
+            @Override
             public void onStart() {
                 Log.i(TAG1, "开始下载第" + index + "个多媒体文件，总共有" + lastIndex + "个多媒体文件");
             }
@@ -1606,6 +1588,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 mFlightController = ((Aircraft) product).getFlightController();
             }
         }
+
+        droneLocationLat = DemoApplication.getAircraftInstance().getFlightController().getState().getAircraftLocation().getLatitude();
+        droneLocationLng = DemoApplication.getAircraftInstance().getFlightController().getState().getAircraftLocation().getLongitude();
+
         if (mFlightController != null) {
             mFlightController.setStateCallback(new FlightControllerState.Callback() {
                 @Override
@@ -1647,6 +1633,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             if (product instanceof Aircraft) {
                 mAirLink = ((Aircraft) product).getAirLink();
                 mcamera = ((Aircraft) product).getCameraWithComponentIndex(0);
+                mcamera.getCameraVideoStreamSource(new CommonCallbacks.CompletionCallbackWith<CameraVideoStreamSource>() {
+                    @Override
+                    public void onSuccess(CameraVideoStreamSource cameraVideoStreamSource) {
+                        mVideoSrcIndex = cameraVideoStreamSource.value() - 1;
+                        videoSrcName.setText(mVideoSrcText[mVideoSrcIndex]);
+                    }
+
+                    @Override
+                    public void onFailure(DJIError djiError) {
+
+                    }
+                });
             }
         }
         if (mAirLink != null && mAirLink.isOcuSyncLinkSupported()) {
@@ -1995,7 +1993,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //            mTasksPanelButton.setTextColor(getResources().getColor(R.color.black_half));
 //            mTasksPanelButton.setBackgroundColor(getResources().getColor(R.color.white));
 
-            //mZoomView.setVisibility(View.INVISIBLE);
+            mZoomView.setVisibility(View.INVISIBLE);
             clearTrace.setVisibility(View.VISIBLE);
         } else {
             cameraStatusBar.setVisibility(View.VISIBLE);
@@ -2019,9 +2017,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //            mTasksPanelButton.setTextColor(getResources().getColor(R.color.white));
 //            mTasksPanelButton.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-//            if(){
-//                mZoomView.setVisibility(View.VISIBLE);
-//            }
+            mZoomView.setVisibility(View.VISIBLE);
+
             mTasksPanel.setVisibility(View.INVISIBLE);
             clearTrace.setVisibility(View.INVISIBLE);
         }
