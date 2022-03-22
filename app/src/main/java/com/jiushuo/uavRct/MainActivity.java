@@ -1638,6 +1638,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     public void onSuccess(CameraVideoStreamSource cameraVideoStreamSource) {
                         mVideoSrcIndex = cameraVideoStreamSource.value() - 1;
                         videoSrcName.setText(mVideoSrcText[mVideoSrcIndex]);
+                        if (mVideoSrcIndex == 1) {
+                            mZoomView.setVisibility(View.VISIBLE);
+                        } else {
+                            mZoomView.setVisibility(View.GONE);
+                        }
                     }
 
                     @Override

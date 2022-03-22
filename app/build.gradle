@@ -108,7 +108,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    implementation('com.dji:dji-sdk:4.13.1', {
+    implementation('com.dji:dji-sdk:4.14.1', {
         /**
          * Uncomment the "library-anti-distortion" if your app does not need Anti Distortion for Mavic 2 Pro and Mavic 2 Zoom.
          * Uncomment the "fly-safe-database" if you need database for release, or we will download it when DJISDKManager.getInstance().registerApp
@@ -118,9 +118,9 @@ dependencies {
         exclude module: 'library-anti-distortion'
         //exclude module: 'fly-safe-database'
     })
-    compileOnly 'com.dji:dji-sdk-provided:4.13.1'
+    compileOnly 'com.dji:dji-sdk-provided:4.14.1'
 
-    implementation 'com.dji:dji-uxsdk:4.13'
+    implementation 'com.dji:dji-uxsdk:4.14'
 
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.core:core:1.0.0'
