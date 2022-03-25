@@ -55,6 +55,7 @@ import com.jiushuo.uavRct.settingpanel.fragment.ImageTransFragment;
 import com.jiushuo.uavRct.settingpanel.fragment.OthersFragment;
 import com.jiushuo.uavRct.settingpanel.fragment.RemoteControllerFragment;
 import com.jiushuo.uavRct.settingpanel.fragment.SensorFragment;
+import com.jiushuo.uavRct.utils.Common;
 import com.jiushuo.uavRct.utils.DoubleComparer;
 import com.jiushuo.uavRct.utils.Helper;
 import com.jiushuo.uavRct.utils.ToastUtils;
@@ -120,6 +121,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private static final String TAG = "主活动";
     public static final double DELTA = 0.00001;
     private static final int EXIT_APP_FIRST_TIME = 10001;
+
+    private static final int CAMERA_STREAM_CHANGE_SUCC = 0;
     private static final String TAG1 = "多媒体下载";
     private static final String TAG2 = "多媒体上传";
     private static final String TAG3 = "多媒体删除";
@@ -168,7 +171,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private Intent mMqttServiceIntent;
     private Disposable makeTraceDisposable;
     private boolean isFlying;
-    private MediaManager mMediaManager;
+    public MediaManager mMediaManager;
     public MediaManager.FileListState currentFileListState = MediaManager.FileListState.UNKNOWN;
     private String destBaseDir = Environment.getExternalStorageDirectory().getPath() + "/WaypointMission/";
     private int lastIndex;
@@ -217,6 +220,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 case EXIT_APP_FIRST_TIME: {
                     isExit = false;
                     break;
+                }
+                case CAMERA_STREAM_CHANGE_SUCC: {
+                    videoSrcName.setText(mVideoSrcText[mVideoSrcIndex]);
+                    if (mVideoSrcIndex == 1 || mVideoSrcIndex == 2) {
+                        mZoomView.setVisibility(View.VISIBLE);
+                    } else {
+                        mZoomView.setVisibility(View.GONE);
+                    }
                 }
                 default:
                     break;
@@ -337,7 +348,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     }
 
     private void initMediaManager() {
-        mMediaManager = DemoApplication.getCameraInstance().getMediaManager();
+        if (mMediaManager == null) {
+            mMediaManager = DemoApplication.getCameraInstance().getMediaManager();
+        }
+
         if (null != mMediaManager) {
             mMediaManager.addUpdateFileListStateListener(fileListStateListener);
         }
@@ -491,7 +505,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     if(mVideoSrcIndex == 4){
                         mVideoSrcIndex = 0;
                     }
-                    if (mVideoSrcIndex == 1) {
+                    if (mVideoSrcIndex == 1 || mVideoSrcIndex == 2) {
                         mZoomView.setVisibility(View.VISIBLE);
                     } else {
                         mZoomView.setVisibility(View.GONE);
@@ -687,6 +701,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         } else {
             settingPanel.setVisibility(View.VISIBLE);
             settingPanel.bringToFront();
+            ((OthersFragment)mFragments.get(4)).initData();
             mFpvScaleBtn.setEnabled(false);
             mMapCameraExchangeBtn.setEnabled(false);
         }
@@ -1176,7 +1191,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                             }
                             mediaFileList = mMediaManager.getSDCardFileListSnapshot();
                             //排序，最新的照片在最前面
-                            Collections.sort(mediaFileList, new Comparator<MediaFile>() {
+                            List<MediaFile> modifiableList = new ArrayList<>(mediaFileList);
+                            Collections.sort(modifiableList, new Comparator<MediaFile>() {
                                 @Override
                                 public int compare(MediaFile lhs, MediaFile rhs) {
                                     if (lhs.getTimeCreated() < rhs.getTimeCreated()) {
@@ -1188,6 +1204,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                                 }
                             });
                             Log.i(TAG1, "mediaFileList的大小为: " + mediaFileList.size());
+                            mediaFileList = modifiableList;
                             downLoadMediaFiles();
                         } else {
                             Log.e(TAG1, "refreshFileListOfStorageLocation: " + djiError.getDescription());
@@ -1320,7 +1337,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                         try {
                             Log.i(TAG2, "remotePath: " + remotePath + "<-----local Path: " + localPath);
                             //开始真正上传文件
-                            ftpClientFunctions.uploadDir(remotePath, localPath);
+                            ftpClientFunctions.uploadDir(remotePath, localPath, true);
                             ftpClientFunctions.ftpDisconnect();
                         } catch (IOException e) {
                             Log.i(TAG2, e.getMessage());
@@ -1359,7 +1376,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         return waypointMissionStartTime;
     }
 
-    private long getLatestWaypointMissionStartTime() {
+    public long getLatestWaypointMissionStartTime() {
         long waypointMissionStartTime;
         SharedPreferences preferences = getSharedPreferences("waypoint",
                 MODE_PRIVATE);
@@ -1388,8 +1405,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         mediaFileList.get(index).fetchFileData(localPath, null, new DownloadListener<String>() {
             @Override
             public void onFailure(DJIError error) {
-                setResultToToast("下载第" + (lastIndex - index + 1) + "个多媒体文件：" + mediaFileList.get(index).getFileName() + "失败，总共有" + (lastIndex + 1) + "个多媒体文件");
-                Log.i(TAG1, "下载第" + index + "个多媒体文件失败" + error.getDescription());
+                if (mediaFileList.size() > index) {
+                    setResultToToast("下载第" + (lastIndex - index + 1) + "个多媒体文件：" + mediaFileList.get(index).getFileName() + "失败，总共有" + (lastIndex + 1) + "个多媒体文件");
+                    Log.i(TAG1, "下载第" + index + "个多媒体文件失败" + error.getDescription());
+                } else {
+                    setResultToToast("下载多媒体文件失败");
+                }
+
             }
 
             @Override
@@ -1502,13 +1524,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             fileToDelete.add(mediaFileList.get(index));
         }
         if (index == 0) {
+            try {
+
+            } catch (Exception e) {
+
+            }
             mMediaManager.deleteFiles(fileToDelete, new CommonCallbacks.CompletionCallbackWithTwoParam<List<MediaFile>, DJICameraError>() {
                 @Override
                 public void onSuccess(List<MediaFile> x, DJICameraError y) {
                     for (MediaFile mediaFile : fileToDelete) {
                         Log.i(TAG3, "删除" + mediaFile.getFileName() + "成功！");
                     }
-                    setResultToToast("删除" + mediaFileList.size() + "个文件成功！");
+                    setResultToToast("删除" + fileToDelete.size() + "个文件成功！");
                     if (index == 0) {
                         //退出下载模式，将照相机设置为拍照模式，清空mediaFileList
                         afterDownloadActions();
@@ -1586,6 +1613,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         if (product != null && product.isConnected()) {
             if (product instanceof Aircraft) {
                 mFlightController = ((Aircraft) product).getFlightController();
+                mFlightController.getSerialNumber(new CommonCallbacks.CompletionCallbackWith<String>() {
+                    @Override
+                    public void onSuccess(String s) {
+                        Common.SERIAL_NUMBER = s;
+                    }
+
+                    @Override
+                    public void onFailure(DJIError djiError) {
+                        Log.d(TAG, djiError.getDescription());
+                    }
+                });
             }
         }
 
@@ -1605,6 +1643,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                         droneHeadDirection = state.getAircraftHeadDirection();
                         updateDroneLocation();
                     }
+
                     if (isFlying != state.isFlying()) {
                         if (isFlying == false) {
                             Log.i(TAG, "waypointMissionOperator的当前状态: " + waypointMissionOperator.getCurrentState());
@@ -1637,12 +1676,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     @Override
                     public void onSuccess(CameraVideoStreamSource cameraVideoStreamSource) {
                         mVideoSrcIndex = cameraVideoStreamSource.value() - 1;
-                        videoSrcName.setText(mVideoSrcText[mVideoSrcIndex]);
-                        if (mVideoSrcIndex == 1) {
-                            mZoomView.setVisibility(View.VISIBLE);
-                        } else {
-                            mZoomView.setVisibility(View.GONE);
-                        }
+                        mHandler.sendEmptyMessage(CAMERA_STREAM_CHANGE_SUCC);
                     }
 
                     @Override

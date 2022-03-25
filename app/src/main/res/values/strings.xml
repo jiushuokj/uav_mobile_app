@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">无人机</string>
+    <string name="main_app_name">无人机作业</string>
 
     <string name="action_settings">Settings</string>
     <string name="disconnected">Disconnected</string>

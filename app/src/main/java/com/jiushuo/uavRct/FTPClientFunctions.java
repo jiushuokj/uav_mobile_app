@@ -156,20 +156,39 @@ public class FTPClientFunctions {
      * @param remotePath ftp上文件夹路径名称
      * @param localPath  本地上传的文件夹路径名称
      */
-    public void uploadDir(String remotePath, String localPath) throws IOException {
+    public void uploadDir(String remotePath, String localPath, boolean isRoot) throws IOException {
         File file = new File(localPath);
         if (file.exists()) {
             if (!ftpClient.changeWorkingDirectory(remotePath)) {
                 ftpClient.makeDirectory(remotePath);
                 ftpClient.changeWorkingDirectory(remotePath);
             }
+            if (isRoot) {
+                ftpClient.makeDirectory("ZOOM");
+                ftpClient.makeDirectory("WIDE");
+                ftpClient.makeDirectory("THRM");
+                ftpClient.makeDirectory("VIDEO");
+            }
+
             File[] files = file.listFiles();
             if (null != files) {
                 for (File f : files) {
                     if (f.isDirectory() && !f.getName().equals(".") && !f.getName().equals("..")) {
-                        uploadDir(remotePath + "/" + f.getName(), f.getPath());
+                        uploadDir(remotePath + "/" + f.getName(), f.getPath(), false);
                     } else if (f.isFile()) {
-                        upload(remotePath + "/" + f.getName(), f);
+                        if (isRoot) {
+                            if (!f.getName().endsWith("JPG")) {
+                                upload(remotePath + "/" + "VIDEO/" + f.getName(), f);
+                            } else {
+                                if (f.getName().contains("_Z")) {
+                                    upload(remotePath + "/" + "ZOOM/" + f.getName(), f);
+                                } else if (f.getName().contains("_W")) {
+                                    upload(remotePath + "/" + f.getName(), f);
+                                } else if (f.getName().contains("_T")) {
+                                    upload(remotePath + "/" + "THRM/" + f.getName(), f);
+                                }
+                            }
+                        }
                     }
                 }
             }

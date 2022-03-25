@@ -38,6 +38,7 @@ import com.jiushuo.uavRct.entity.mqtt.SetReturnHeightRequest;
 import com.jiushuo.uavRct.entity.mqtt.SetReturnHeightResponse;
 import com.jiushuo.uavRct.entity.mqtt.WaypointMissionRequest;
 import com.jiushuo.uavRct.entity.mqtt.ZoomResponse;
+import com.jiushuo.uavRct.utils.Common;
 import com.jiushuo.uavRct.utils.ToastUtils;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -75,6 +76,7 @@ import dji.common.mission.waypoint.WaypointActionType;
 import dji.common.mission.waypoint.WaypointMission;
 import dji.common.mission.waypoint.WaypointMissionFinishedAction;
 import dji.common.mission.waypoint.WaypointMissionHeadingMode;
+import dji.common.mission.waypoint.WaypointMissionState;
 import dji.common.mission.waypoint.WaypointTurnMode;
 import dji.common.model.LocationCoordinate2D;
 import dji.common.util.CommonCallbacks;
@@ -234,24 +236,6 @@ public class MyMqttService extends Service {
             @Override
             public void onUpdate(AirSenseSystemInformation info) {
                 airSenseSystemInformation = info;
-            }
-        });
-        flightController.getSerialNumber(new CommonCallbacks.CompletionCallbackWith<String>() {
-            @Override
-            public void onSuccess(String s) {
-                serialNumber = s;
-                Log.i(TAG, "获取序列号成功: " + serialNumber);
-
-                //初始化发布主题和响应主题
-                initPublishAndResponseTopic();
-
-                //初始化构建MqttClient的参数
-                initMqttClientParams();
-            }
-
-            @Override
-            public void onFailure(DJIError djiError) {
-                Log.e(TAG, "onFailure: " + djiError.getDescription());
             }
         });
         battery = aircraft.getBattery();
@@ -726,6 +710,7 @@ public class MyMqttService extends Service {
         if (waypointMissionOperator == null) {
             waypointMissionOperator = DJISDKManager.getInstance().getMissionControl().getWaypointMissionOperator();
         }
+        WaypointMissionState currentState = waypointMissionOperator.getCurrentState();
         waypointMissionOperator.startMission(new CommonCallbacks.CompletionCallback() {
             @Override
             public void onResult(DJIError djiError) {
@@ -764,6 +749,7 @@ public class MyMqttService extends Service {
             @Override
             public void onResult(DJIError djiError) {
                 makeDefaultResponse(djiError, message);
+                WaypointMissionState currentState = waypointMissionOperator.getCurrentState();
                 ToastUtils.setResultToToast(djiError == null ? "航点任务上传成功" : "航点任务上传失败" + djiError.getDescription());
             }
         });
@@ -1244,6 +1230,12 @@ public class MyMqttService extends Service {
         initMqttUrl();
         //初始化无人机各个部件的变量
         initAircraftParams();
+
+        serialNumber = Common.SERIAL_NUMBER;
+        //初始化发布主题和响应主题
+        initPublishAndResponseTopic();
+        //初始化构建MqttClient的参数
+        initMqttClientParams();
     }
 
     private void initPublishAndResponseTopic() {
@@ -1290,8 +1282,10 @@ public class MyMqttService extends Service {
         Integer qos = 2;
         Boolean retained = false;
         try {
-            //参数分别为：主题、消息的字节数组、服务质量、是否在服务器保留断开连接后的最后一条消息
-            mqttAndroidClient.publish(topic, message.getBytes(), qos.intValue(), retained.booleanValue());
+            if (mqttAndroidClient != null) {
+                //参数分别为：主题、消息的字节数组、服务质量、是否在服务器保留断开连接后的最后一条消息
+                mqttAndroidClient.publish(topic, message.getBytes(), qos.intValue(), retained.booleanValue());
+            }
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -1405,7 +1399,7 @@ public class MyMqttService extends Service {
             return mqttAndroidClient.isConnected();
         }
 
-        public boolean isMqttSendingDate() {
+        public boolean isMqttSendingData() {
             if (disposable == null || disposable.isDisposed()) {
                 return false;
             } else {
@@ -1415,7 +1409,7 @@ public class MyMqttService extends Service {
         }
 
         public void connectMqttServer() {
-            initAircraftParams();
+            initMqttClientParams();
         }
 
         public void disconnectMqttServer() throws MqttException {

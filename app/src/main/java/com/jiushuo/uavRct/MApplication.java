@@ -32,7 +32,7 @@ public class MApplication extends BaseApplication {
         LitePal.initialize(this);
         Stetho.initializeWithDefaults(this);
         demoApplication.onCreate();
-//        Thread.setDefaultUncaughtExceptionHandler(new SysCrashHandler());
+        Thread.setDefaultUncaughtExceptionHandler(new SysCrashHandler());
     }
 
 }

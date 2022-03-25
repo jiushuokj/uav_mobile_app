@@ -31,6 +31,20 @@
 
                 <TextView
                     style="@style/setting_item_main_txt"
+                    android:text="无人机编号" />
+
+                <EditText
+                    android:id="@+id/edit_text_uav_serial_num"
+                    style="@style/setting_item_edit_text"
+                    android:layout_width="240dp"/>
+            </RelativeLayout>
+
+            <View style="@style/setting_item_separate_line" />
+
+            <RelativeLayout style="@style/setting_item_common_layout">
+
+                <TextView
+                    style="@style/setting_item_main_txt"
                     android:text="Mqtt服务器地址" />
 
                 <EditText
@@ -176,8 +190,18 @@
             <RelativeLayout style="@style/setting_item_common_layout">
 
                 <TextView
+                    android:id="@+id/recent_file_tv"
                     style="@style/setting_item_main_txt"
-                    android:text="下载上传最近多媒体文件" />
+                    android:text="下载上传最近任务多媒体文件" />
+
+                <TextView
+                    android:id="@+id/recent_file_num_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/recent_file_tv"
+                    android:textSize="15sp"
+                    android:text="(0)" />
 
                 <Button
                     android:id="@+id/btn_download_upload_file_list"
@@ -189,8 +213,18 @@
             <RelativeLayout style="@style/setting_item_common_layout">
 
                 <TextView
+                    android:id="@+id/all_file_tv"
                     style="@style/setting_item_main_txt"
                     android:text="下载上传所有多媒体文件" />
+
+                <TextView
+                    android:id="@+id/all_file_num_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/all_file_tv"
+                    android:textSize="15sp"
+                    android:text="(0)" />
 
                 <Button
                     android:id="@+id/btn_download_upload_all_file"

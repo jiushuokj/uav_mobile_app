@@ -34,7 +34,7 @@ public class SysCrashHandler implements Thread.UncaughtExceptionHandler {
 
         long timeMillis = System.currentTimeMillis();
         //错误日志文件名称
-        String fileName = "crash-" + timeMillis + ".log";
+        String fileName = "crash-" + timeMillis + ".txt";
         //判断sd卡可正常使用
         if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             //文件存储位置

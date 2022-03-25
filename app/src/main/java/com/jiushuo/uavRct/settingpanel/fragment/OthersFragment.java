@@ -3,6 +3,9 @@ package com.jiushuo.uavRct.settingpanel.fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -18,13 +21,14 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.jiushuo.uavRct.DemoApplication;
 import com.jiushuo.uavRct.MainActivity;
 //import com.dji.mediaManagerDemo.R;
 import com.jiushuo.uavRct.R;
+import com.jiushuo.uavRct.utils.Common;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
@@ -35,12 +39,16 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import dji.common.camera.SettingsDefinitions;
 import dji.common.error.DJIError;
 import dji.common.util.CommonCallbacks;
 import dji.sdk.camera.VideoFeeder;
+import dji.sdk.media.MediaFile;
+import dji.sdk.media.MediaManager;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -49,6 +57,7 @@ public class OthersFragment extends Fragment {
     private static final String TAG = "其他参数设置";
     private View view;
     private MainActivity mainActivity;
+    private MediaManager mMediaManager;
     private EditText editTextMqttUrl;
     private EditText editTextRtmpUrl;
     private Switch switchRtmpVideoEncode;
@@ -63,9 +72,9 @@ public class OthersFragment extends Fragment {
     private String ftpUrl, ftpUsr, ftpPsd;
     private boolean rtmpVideoEncode;
     private boolean rtmpSoundOn;
-    private String serialNumber;
     private InputMethodManager imm;
     private EditText editTextFtpUrl, editTextFtpUsr, editTextFtpPsd;
+    private TextView allFileNumTv, recentFileNumTv;
     private Button btn_query_file_list_state, btn_download_upload_file_list, btn_connect_to_ftp_server, btn_download_upload_all_file;
 /*    private Button btn_speech;
     private TextToSpeech textToSpeech;*/
@@ -77,6 +86,23 @@ public class OthersFragment extends Fragment {
     private static DatagramSocket udp_sock;
     private static InetAddress serverAddr;
     private static boolean raw_h264_pusing_ = false;
+
+    private static final int GET_FILE_NUM_SUCC = 0;
+
+    private Handler mHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message message) {
+            switch (message.what) {
+                case GET_FILE_NUM_SUCC: {
+                    allFileNumTv.setText("(" + message.arg1 + ")");
+                    recentFileNumTv.setText("(" + message.arg2 + ")");
+                    break;
+                }
+            }
+            return false;
+        }
+    });
+
     protected static VideoFeeder.VideoDataListener mReceivedVideoDataListener = new VideoFeeder.VideoDataListener() {
         @Override
         public void onReceive(byte[] videoBuffer, int size) {
@@ -88,7 +114,7 @@ public class OthersFragment extends Fragment {
                     send_size = leftsize;
                 }
                 byte[] tosends = Arrays.copyOfRange(videoBuffer, size - leftsize, size - leftsize + send_size );
-                DatagramPacket packet = new DatagramPacket(tosends , send_size, serverAddr, 34330);
+                DatagramPacket packet = new DatagramPacket(tosends , send_size, serverAddr, 33330);
                 try {
                     udp_sock.send(packet);
 //                        Log.d(TAG,"send frame....");
@@ -101,6 +127,7 @@ public class OthersFragment extends Fragment {
             }
         }
     };
+
 
     @Nullable
     @Override
@@ -147,27 +174,49 @@ public class OthersFragment extends Fragment {
 //            }
 //        };
 
-        initSerialNumber();
         initUI();
-
+        initData();
         return view;
     }
 
-    private void initSerialNumber() {
-        DemoApplication.getAircraftInstance().getFlightController().getSerialNumber(new CommonCallbacks.CompletionCallbackWith<String>() {
+    /**
+     * 数据初始化
+     */
+    public void initData() {
+        if (mainActivity == null) {
+            return;
+        }
+        mMediaManager = mainActivity.mMediaManager;
+        mMediaManager.refreshFileListOfStorageLocation(SettingsDefinitions.StorageLocation.SDCARD, new CommonCallbacks.CompletionCallback() {
             @Override
-            public void onSuccess(String s) {
-                serialNumber = s;
-            }
-
-            @Override
-            public void onFailure(DJIError djiError) {
-                Log.e(TAG, "onFailure: " + djiError.getDescription());
+            public void onResult(DJIError djiError) {
+                if (null == djiError) {
+                    List<MediaFile> sdCardFileListSnapshot = mMediaManager.getSDCardFileListSnapshot();
+                    int allFileNum = sdCardFileListSnapshot.size();
+                    int recentFileNum = 0;
+                    if (sdCardFileListSnapshot != null) {
+                        long waypointMissionStartTime = mainActivity.getLatestWaypointMissionStartTime();
+                        for (MediaFile file : sdCardFileListSnapshot) {
+                            if (file.getTimeCreated() > waypointMissionStartTime) {
+                                recentFileNum++;
+                            }
+                        }
+                        Message message = new Message();
+                        message.what = GET_FILE_NUM_SUCC;
+                        message.arg1 = allFileNum;
+                        message.arg2 = recentFileNum;
+                        mHandler.sendMessage(message);
+                    }
+                }
             }
         });
     }
 
     private void initUI() {
+        EditText serialNumEdt = view.findViewById(R.id.edit_text_uav_serial_num);
+        serialNumEdt.setText(Common.SERIAL_NUMBER);
+        serialNumEdt.setInputType(InputType.TYPE_NULL );
+
         editTextMqttUrl = view.findViewById(R.id.edit_text_mqtt_url);
         initEditTextMqttUrl();
         initEditTextMqttUrlEvents();
@@ -179,7 +228,7 @@ public class OthersFragment extends Fragment {
                 boolean mqttConnected = mainActivity.mqttBinder.isMqttConnected();
                 setResultToToast(mqttConnected ? "已经连接到Mqtt服务器" : "没有连接到Mqtt服务器");
                 if (mqttConnected) {
-                    boolean mqttSendingDate = mainActivity.mqttBinder.isMqttSendingDate();
+                    boolean mqttSendingDate = mainActivity.mqttBinder.isMqttSendingData();
                     setResultToToast(mqttSendingDate ? "正在发送数据" : "没有发送数据");
                     if (!mqttSendingDate) {
                         setResultToToast("尝试重新连接Mqtt服务器，并发送数据");
@@ -255,6 +304,9 @@ public class OthersFragment extends Fragment {
                 mainActivity.downloadRelatedMedia();
             }
         });
+
+        allFileNumTv = view.findViewById(R.id.all_file_num_tv);
+        recentFileNumTv = view.findViewById(R.id.recent_file_num_tv);
 
         btn_download_upload_all_file = view.findViewById(R.id.btn_download_upload_all_file);
         btn_download_upload_all_file.setOnClickListener(new View.OnClickListener() {
@@ -538,7 +590,7 @@ public class OthersFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     initEditTextRtmpUrl();
-                    startRtmpStreaming("rtmp://" + rtmpUrl + "/stream/" + serialNumber);
+                    startRtmpStreaming("rtmp://" + rtmpUrl + "/stream/" + Common.SERIAL_NUMBER);
                 } else {
                     stopRtmpStreaming();
                 }
